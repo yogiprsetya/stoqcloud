@@ -19,8 +19,8 @@ const Toaster = dynamic(() => import('~/components/ui/sonner').then((m) => m.Toa
 });
 
 export const metadata: Metadata = {
-  title: 'FormyGlow - Dashboard',
-  description: 'Kelola skincare Anda dengan FormyGlow'
+  title: 'Dashboard',
+  description: 'Kelola gudang'
 };
 
 export default function SpaceLayout({ children }: { children: React.ReactNode }) {

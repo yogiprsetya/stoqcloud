@@ -10,8 +10,7 @@
     "db:studio": "drizzle-kit studio",
     "db:gen": "drizzle-kit generate --config=db/drizzle.config.ts",
     "db:push": "drizzle-kit push --config=db/drizzle.config.ts",
-    "migrate": "npm run db:gen && npm run db:push",
-    "db:seed": "npx tsx db/seed.ts"
+    "migrate": "npm run db:gen && npm run db:push"
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.10.0",
