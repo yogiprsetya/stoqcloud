@@ -3,6 +3,9 @@ import { AppLayout } from '~/components/layout/app-layout';
 import dynamic from 'next/dynamic';
 import { Skeleton } from '~/components/ui/skeleton';
 import { headers } from 'next/headers';
+import { getServerSession } from 'next-auth';
+import { redirect } from 'next/navigation';
+import { authOptions } from '~/config/auth';
 
 const isMobileDevice = (userAgent: string) => {
   const mobileRegex = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i;
@@ -23,7 +26,18 @@ export const metadata: Metadata = {
   description: 'Kelola gudang'
 };
 
-export default function SpaceLayout({ children }: { children: React.ReactNode }) {
+export default async function DepotLayout({ children }: { children: React.ReactNode }) {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user) {
+    redirect('/signin?callbackUrl=%2Fdepot');
+  }
+
+  const role = (session.user as any).role as string | undefined;
+  if (role === 'OWNER' || role === 'ADMIN') {
+    redirect('/');
+  }
+
   const headersList = headers();
   const userAgent = headersList.get('user-agent') || '';
   const domain = headersList.get('host') || '';

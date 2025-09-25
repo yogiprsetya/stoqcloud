@@ -24,7 +24,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         </header>
 
         {/* Page Content - Scrollable */}
-        <main className="flex-1 p-4 md:p-6 overflow-y-auto">{children}</main>
+        <main className="flex-1 px-4 pb-4 md:px-6 md:pb-6 overflow-y-auto">{children}</main>
       </div>
     </div>
   );

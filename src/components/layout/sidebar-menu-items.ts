@@ -1,24 +1,24 @@
-import { Package, Calendar, TrendingUp, Home } from 'lucide-react';
+import { Package, Download, Upload, Home } from 'lucide-react';
 
 export const menuItems = [
   {
     title: 'Dashboard',
-    href: '/space',
+    href: '/depot',
     icon: Home
   },
   {
-    title: 'Inventory',
-    href: '/space/inventory',
+    title: 'Stock In',
+    href: '/depot/stock-in',
+    icon: Download
+  },
+  {
+    title: 'Stock Out',
+    href: '/depot/stock-out',
+    icon: Upload
+  },
+  {
+    title: 'Cek Stok',
+    href: '/depot/stock',
     icon: Package
-  },
-  {
-    title: 'Routines',
-    href: '/space/routines',
-    icon: Calendar
-  },
-  {
-    title: 'Progress',
-    href: '/space/progress',
-    icon: TrendingUp
   }
 ];

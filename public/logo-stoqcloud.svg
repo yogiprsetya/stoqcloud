@@ -1,0 +1,20 @@
+<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="StoqCloud Logo">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="96" y2="96" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6366F1"/>
+      <stop offset="1" stop-color="#8B5CF6"/>
+    </linearGradient>
+  </defs>
+  <!-- Cloud -->
+  <path d="M33 64H73C79.627 64 85 58.627 85 52C85 45.779 80.394 40.558 74.418 39.2C72.934 30.243 65.252 24 56.2 24C48.87 24 42.64 28.157 39.52 34.28C37.88 33.77 36.152 33.5 34.36 33.5C26.215 33.5 19.6 40.115 19.6 48.26C19.6 56.405 26.215 63.02 34.36 63.02L33 64Z" fill="url(#g1)"/>
+  <!-- Boxes -->
+  <rect x="22" y="52" width="18" height="14" rx="2.5" fill="#FFFFFF" fill-opacity="0.95"/>
+  <path d="M22 58H40" stroke="#E5E7EB" stroke-width="2"/>
+  <rect x="44" y="48" width="18" height="18" rx="2.5" fill="#FFFFFF" fill-opacity="0.95"/>
+  <path d="M44 54H62" stroke="#E5E7EB" stroke-width="2"/>
+  <rect x="66" y="54" width="18" height="12" rx="2.5" fill="#FFFFFF" fill-opacity="0.95"/>
+  <path d="M66 58H84" stroke="#E5E7EB" stroke-width="2"/>
+  <!-- Check mark -->
+  <path d="M30 60.5l3.2 3.2 6.3-6.3" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+

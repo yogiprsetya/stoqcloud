@@ -41,7 +41,7 @@ export function SidebarMenu() {
       <SheetContent side="left" className="w-[280px] sm:w-[320px]">
         <SheetHeader className="pb-6 flex-row gap-2 space-y-0">
           <ProfilePicture />
-          <span className="font-semibold leading-8 text-sm text-foreground">Personal Space</span>
+          <span className="font-semibold leading-8 text-sm text-foreground">Depot</span>
         </SheetHeader>
 
         <div className="flex flex-col h-[calc(100%-32px)]">
