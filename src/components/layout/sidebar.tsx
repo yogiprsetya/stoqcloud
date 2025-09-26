@@ -7,13 +7,13 @@ import { LogOut } from 'lucide-react';
 import { Logo } from '../common/logo';
 import { menuItems } from './sidebar-menu-items';
 import { cn } from '~/utils/css';
+import { signOut } from 'next-auth/react';
 
 export function Sidebar() {
   const pathname = usePathname();
 
   const handleLogout = () => {
-    // Implementasi logout sesuai kebutuhan
-    console.log('Logout clicked');
+    signOut();
   };
 
   return (

@@ -1,19 +1,8 @@
-import { getServerSession } from 'next-auth';
-import { redirect } from 'next/navigation';
-import { authOptions } from '~/config/auth';
+// import { getServerSession } from 'next-auth';
+// import { redirect } from 'next/navigation';
+// import { authOptions } from '~/config/auth';
 
 export default async function Home() {
-  const session = await getServerSession(authOptions);
-
-  if (!session?.user) {
-    redirect('/signin?callbackUrl=%2F');
-  }
-
-  const role = (session.user as any).role as string | undefined;
-  if (role !== 'OWNER' && role !== 'ADMIN') {
-    redirect('/depot');
-  }
-
   return (
     <div className="min-h-screen p-6">
       <div className="max-w-7xl mx-auto space-y-6">

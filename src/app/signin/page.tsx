@@ -2,18 +2,18 @@
 
 import { getSession, signIn } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import Image from 'next/image';
 
-export default function SignInPage() {
+const SigninForm = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/post-signin';
+  const callbackUrl = searchParams.get('callbackUrl') || '/depot';
 
   useEffect(() => {
     // Check if user is already signed in
@@ -126,4 +126,12 @@ export default function SignInPage() {
       </div>
     </div>
   );
-}
+};
+
+const SignInPage = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <SigninForm />
+  </Suspense>
+);
+
+export default SignInPage;

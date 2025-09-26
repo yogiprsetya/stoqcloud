@@ -4,77 +4,81 @@
 
 @layer base {
   :root {
+    /* Corporate Light Theme - Professional & Clean */
     --background: 0 0% 100%;
-    --foreground: 235 12% 21%;
-    --card: 210 23% 90%;
-    --card-foreground: 235 12% 21%;
-    --popover: 214 17% 76%;
-    --popover-foreground: 212 19% 27%;
-    --primary: 223 100% 63%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 214 17% 76%;
-    --secondary-foreground: 212 19% 87%;
-    --muted: 0 0% 100%;
-    --muted-foreground: 210 28% 31%;
-    --accent: 0 0% 100%;
-    --accent-foreground: 235 12% 21%;
-    --destructive: 0 91% 71%;
-    --destructive-foreground: 0 100% 14%;
-    --border: 214 17% 76%;
-    --input: 214 17% 76%;
-    --ring: 223 100% 63%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
-    --chart-1: 223 100% 63%;
-    --chart-2: 214 17% 76%;
-    --chart-3: 307 82% 20%;
-    --chart-4: 307 82% 30%;
-    --chart-5: 223 100% 73%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
     
-    --sidebar-background: 0 0% 97%;
-    --sidebar-foreground: 235 12% 37%;
-    --sidebar-primary: 223 100% 60%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 75%;
-    --sidebar-accent-foreground: 235 12% 21%;
-    --sidebar-border: 214 17% 73%;
-    --sidebar-ring: 223 100% 60%;
+    /* Corporate Sidebar */
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 221.2 83.2% 53.3%;
+    --sidebar-primary-foreground: 210 40% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 221.2 83.2% 53.3%;
   }
 
   .dark {
-    --background: 0 10% 10%;
-    --foreground: 235 22% 79%;
-    --card: 210 33% 10%;
-    --card-foreground: 235 22% 79%;
-    --popover: 214 30% 79%;
-    --popover-foreground: 212 29% 13%;
-    --primary: 223 100% 37%;
-    --primary-foreground: 0 10% 10%;
-    --secondary: 214 30% 79%;
-    --secondary-foreground: 212 29% 13%;
-    --muted: 0 10% 10%;
-    --muted-foreground: 210 33% 40%;
-    --accent: 0 10% 10%;
-    --accent-foreground: 235 22% 79%;
-    --destructive: 0 100% 29%;
-    --destructive-foreground: 0 100% 86%;
-    --border: 214 30% 79%;
-    --input: 214 30% 79%;
-    --ring: 223 100% 37%;
+    /* Corporate Dark Theme - Professional & Modern */
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 217.2 91.2% 59.8%;
+    --primary-foreground: 222.2 84% 4.9%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 224.3 76.3% 94.1%;
     --radius: 0.5rem;
-    --chart-1: 223 100% 33%;
-    --chart-2: 214 30% 20%;
-    --chart-3: 307 92% 20%;
-    --chart-4: 307 92% 20%;
-    --chart-5: 223 100% 43%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
     
-    --sidebar-background: 0 10% 2%;
-    --sidebar-foreground: 235 22% 63%;
-    --sidebar-primary: 223 100% 50%;
-    --sidebar-primary-foreground: 0 10% 100%;
-    --sidebar-accent: 0 10% 25%;
-    --sidebar-accent-foreground: 235 22% 79%;
-    --sidebar-border: 214 30% 71%;
-    --sidebar-ring: 223 100% 29%;
+    /* Corporate Dark Sidebar */
+    --sidebar-background: 222.2 84% 4.9%;
+    --sidebar-foreground: 210 40% 98%;
+    --sidebar-primary: 217.2 91.2% 59.8%;
+    --sidebar-primary-foreground: 222.2 84% 4.9%;
+    --sidebar-accent: 217.2 32.6% 17.5%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217.2 32.6% 17.5%;
+    --sidebar-ring: 224.3 76.3% 94.1%;
   }
 }
 
@@ -90,5 +94,6 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 }
