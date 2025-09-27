@@ -22,11 +22,11 @@ export const useSku = () => {
         }
 
         if (res.data.success) {
-          toast.success('SKU berhasil ditambahkan ke inventory!');
+          toast.success('SKU successfully added to inventory!');
           return { success: true };
         }
 
-        toast.error('Gagal menambahkan SKU');
+        toast.error('Failed to add SKU');
         return { success: false };
       })
       .catch(errorHandler)
@@ -45,11 +45,11 @@ export const useSku = () => {
         }
 
         if (res.data.success) {
-          toast.success('SKU berhasil diubah!');
+          toast.success('SKU successfully updated!');
           return { success: true };
         }
 
-        toast.error('Gagal menyimpan SKU');
+        toast.error('Failed to save SKU');
         return { success: false };
       })
       .catch(errorHandler)

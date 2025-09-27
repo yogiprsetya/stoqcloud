@@ -97,16 +97,12 @@ export function AppSidebar() {
                       {isExpanded && (
                         <SidebarMenuSub>
                           {item.children!.map((child) => {
-                            const ChildIcon = child.icon;
                             const isChildActive = child.href === pathname;
 
                             return (
                               <SidebarMenuSubItem key={child.href}>
                                 <SidebarMenuSubButton asChild isActive={isChildActive}>
-                                  <Link href={child.href ?? ''}>
-                                    <ChildIcon />
-                                    <span>{child.title}</span>
-                                  </Link>
+                                  <Link href={child.href ?? ''}>{child.title}</Link>
                                 </SidebarMenuSubButton>
                               </SidebarMenuSubItem>
                             );

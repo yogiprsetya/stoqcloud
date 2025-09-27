@@ -7,17 +7,17 @@ export type SelectSKU = InferSelectModel<typeof sku>;
 // Define form schema with Zod
 export const formSchema = z.object({
   skuCode: z.string().min(1, {
-    message: 'SKU Code harus diisi'
+    message: 'SKU Code is required'
   }),
   name: z.string().min(1, {
-    message: 'Nama produk harus diisi'
+    message: 'Product name is required'
   }),
   category: z.string().optional(),
   supplier: z.string().optional(),
   costPrice: z.number().min(0, {
-    message: 'Harga beli tidak boleh negatif'
+    message: 'Cost price cannot be negative'
   }),
   stock: z.number().int().min(0, {
-    message: 'Stok tidak boleh negatif'
+    message: 'Stock cannot be negative'
   })
 });

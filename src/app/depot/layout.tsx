@@ -23,7 +23,7 @@ const Toaster = dynamic(() => import('~/components/ui/sonner').then((m) => m.Toa
 
 export const metadata: Metadata = {
   title: 'Dashboard',
-  description: 'Kelola gudang'
+  description: 'Manage warehouse'
 };
 
 export default async function DepotLayout({ children }: { children: React.ReactNode }) {

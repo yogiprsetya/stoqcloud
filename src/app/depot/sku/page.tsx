@@ -3,12 +3,14 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import type { SelectSKU } from './schema';
+import { Button } from '~/components/ui/button';
+import { Input } from '~/components/ui/input';
 
 const SkuTable = dynamic(() => import('./sku-table').then((m) => m.SkuTable), {
   ssr: false
 });
 
-const DialogCreateSku = dynamic(() => import('./dialog-create-sku').then((m) => m.DialogCreateSku), {
+const SkuCreateDialog = dynamic(() => import('./sku-create-dialog').then((m) => m.SkuCreateDialog), {
   ssr: false
 });
 
@@ -47,7 +49,7 @@ export default function DepotSkuPage() {
   //   e.preventDefault();
   //   const parsed = formSchema.safeParse(form);
   //   if (!parsed.success) {
-  //     setError('Form tidak valid');
+  //     setError('Form is not valid');
   //     return;
   //   }
   //   try {
@@ -69,7 +71,7 @@ export default function DepotSkuPage() {
   //     resetForm();
   //     await load();
   //   } catch (e) {
-  //     setError(e?.message || 'Gagal menyimpan');
+  //     setError(e?.message || 'Failed to save');
   //   } finally {
   //     setLoading(false);
   //   }
@@ -94,7 +96,7 @@ export default function DepotSkuPage() {
   //     await fetch(`/api/sku/${item.id}`, { method: 'DELETE' });
   //     await load();
   //   } catch (e: any) {
-  //     setError(e?.message || 'Gagal menghapus');
+  //     setError(e?.message || 'Failed to delete');
   //   } finally {
   //     setLoading(false);
   //   }
@@ -104,25 +106,16 @@ export default function DepotSkuPage() {
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-semibold">SKU Manager</h1>
+
         <div className="flex gap-2">
-          <input
-            className="border rounded px-3 py-2"
-            placeholder="Cari..."
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-          />
-          <button
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-            onClick={handleOpenModal}
-          >
-            Tambah SKU
-          </button>
+          <Input placeholder="Search ..." value={q} onChange={(e) => setQ(e.target.value)} />
+          <Button onClick={handleOpenModal}>Add SKU</Button>
         </div>
       </div>
 
       <SkuTable onEdit={handleEdit} />
 
-      <DialogCreateSku isOpen={isModalOpen} onClose={handleCloseModal} editing={editing} />
+      <SkuCreateDialog isOpen={isModalOpen} onClose={handleCloseModal} editing={editing} />
     </div>
   );
 }

@@ -4,7 +4,7 @@ export interface MenuItem {
   title: string;
   href?: string;
   icon: any;
-  children?: MenuItem[];
+  children?: Omit<MenuItem, 'icon'>[];
 }
 
 export const menuItems: MenuItem[] = [
@@ -19,8 +19,7 @@ export const menuItems: MenuItem[] = [
     children: [
       {
         title: 'SKU',
-        href: '/depot/sku',
-        icon: Package
+        href: '/depot/sku'
       }
     ]
   },
@@ -35,7 +34,7 @@ export const menuItems: MenuItem[] = [
     icon: Upload
   },
   {
-    title: 'Cek Stok',
+    title: 'Check Stock',
     href: '/depot/stock',
     icon: Package
   }

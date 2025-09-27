@@ -21,7 +21,7 @@ interface CreateSkuModalProps {
   editing?: SelectSKU | null;
 }
 
-export const DialogCreateSku = ({ isOpen, onClose, editing }: CreateSkuModalProps) => {
+export const SkuCreateDialog = ({ isOpen, onClose, editing }: CreateSkuModalProps) => {
   const { isLoading, createSku, updateSku } = useSku();
 
   const form = useForm<FormData>({
@@ -69,15 +69,15 @@ export const DialogCreateSku = ({ isOpen, onClose, editing }: CreateSkuModalProp
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{editing ? 'Edit SKU' : 'Tambah SKU Baru'}</DialogTitle>
+          <DialogTitle>{editing ? 'Edit SKU' : 'Add New SKU'}</DialogTitle>
         </DialogHeader>
 
         <Alert>
           <Barcode />
-          <AlertTitle className="text-xs">Tips Barcode Scanner</AlertTitle>
+          <AlertTitle className="text-xs">Barcode Scanner Tips</AlertTitle>
           <AlertDescription className="text-xs">
-            Arahkan cursor ke kolom SKU Code di atas, lalu gunakan barcode scanner untuk memindai kode barcode
-            produk. Kode akan otomatis terisi di kolom tersebut.
+            Point your cursor to the SKU Code field above, then use a barcode scanner to scan the product
+            barcode. The code will automatically fill in the field.
           </AlertDescription>
         </Alert>
 
@@ -91,7 +91,7 @@ export const DialogCreateSku = ({ isOpen, onClose, editing }: CreateSkuModalProp
                   <FormItem>
                     <FormLabel>SKU Code *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Masukkan SKU Code" {...field} />
+                      <Input placeholder="Enter SKU Code" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -103,9 +103,9 @@ export const DialogCreateSku = ({ isOpen, onClose, editing }: CreateSkuModalProp
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nama Produk *</FormLabel>
+                    <FormLabel>Product Name *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Masukkan nama produk" {...field} />
+                      <Input placeholder="Enter product name" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -117,9 +117,9 @@ export const DialogCreateSku = ({ isOpen, onClose, editing }: CreateSkuModalProp
                 name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Kategori</FormLabel>
+                    <FormLabel>Category</FormLabel>
                     <FormControl>
-                      <Input placeholder="Masukkan kategori" {...field} />
+                      <Input placeholder="Enter category" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -133,7 +133,7 @@ export const DialogCreateSku = ({ isOpen, onClose, editing }: CreateSkuModalProp
                   <FormItem>
                     <FormLabel>Supplier</FormLabel>
                     <FormControl>
-                      <Input placeholder="Masukkan supplier" {...field} />
+                      <Input placeholder="Enter supplier" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -145,7 +145,7 @@ export const DialogCreateSku = ({ isOpen, onClose, editing }: CreateSkuModalProp
                 name="costPrice"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Harga Beli</FormLabel>
+                    <FormLabel>Cost Price</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -166,7 +166,7 @@ export const DialogCreateSku = ({ isOpen, onClose, editing }: CreateSkuModalProp
                 name="stock"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Stok</FormLabel>
+                    <FormLabel>Stock</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -183,12 +183,12 @@ export const DialogCreateSku = ({ isOpen, onClose, editing }: CreateSkuModalProp
             </div>
 
             <DialogFooter className="flex gap-1">
-              <Button type="button" variant="outline" onClick={handleClose} disabled={isLoading}>
-                Batal
+              <Button type="button" variant="outline" size="lg" onClick={handleClose} disabled={isLoading}>
+                Cancel
               </Button>
 
-              <Button type="submit" disabled={isLoading} className="bg-blue-600 hover:bg-blue-700">
-                {isLoading ? 'Menyimpan...' : editing ? 'Update' : 'Simpan'}
+              <Button type="submit" size="lg" disabled={isLoading}>
+                {isLoading ? 'Saving...' : editing ? 'Update' : 'Save'}
               </Button>
             </DialogFooter>
           </form>

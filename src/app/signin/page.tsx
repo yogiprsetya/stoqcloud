@@ -51,18 +51,20 @@ const SigninForm = () => {
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white">StoqCloud</h1>
           </div>
 
-          <p className="text-lg text-gray-600 dark:text-gray-300">Manajemen Gudang & Stok untuk Bisnis</p>
+          <p className="text-lg text-gray-600 dark:text-gray-300">
+            Warehouse & Stock Management for Business
+          </p>
         </div>
 
         {/* Sign In Card */}
         <Card className="shadow-xl border-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm">
           <CardHeader className="text-center pb-4">
             <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-white">
-              Masuk ke StoqCloud
+              Sign in to StoqCloud
             </CardTitle>
 
             <CardDescription className="text-gray-600 dark:text-gray-400">
-              Login untuk mengelola gudang dan stok Anda
+              Login to manage your warehouse and stock
             </CardDescription>
           </CardHeader>
 
@@ -94,20 +96,20 @@ const SigninForm = () => {
                       d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                     />
                   </svg>
-                  Masuk dengan Google
+                  Sign in with Google
                 </>
               )}
             </Button>
 
             <div className="text-center">
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Dengan masuk, Anda menyetujui{' '}
+                By signing in, you agree to{' '}
                 <a href="#" className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
-                  Ketentuan Layanan
+                  Terms of Service
                 </a>{' '}
-                dan{' '}
+                and{' '}
                 <a href="#" className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
-                  Kebijakan Privasi
+                  Privacy Policy
                 </a>
               </p>
             </div>
@@ -117,9 +119,9 @@ const SigninForm = () => {
         {/* Footer */}
         <div className="mt-8 text-center">
           <p className="text-xs text-gray-500 dark:text-gray-400">
-            Butuh bantuan?{' '}
+            Need help?{' '}
             <a href="#" className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
-              Hubungi support
+              Contact support
             </a>
           </p>
         </div>

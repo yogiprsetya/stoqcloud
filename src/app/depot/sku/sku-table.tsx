@@ -11,15 +11,15 @@ interface SkuTableProps {
 const createColumns = (onEdit?: (item: SelectSKU) => void): ColumnDef<SelectSKU>[] => [
   {
     accessorKey: 'skuCode',
-    header: 'Kode SKU'
+    header: 'SKU Code'
   },
   {
     accessorKey: 'name',
-    header: 'Nama Produk'
+    header: 'Product Name'
   },
   {
     accessorKey: 'category',
-    header: 'Kategori'
+    header: 'Category'
   },
   {
     accessorKey: 'supplier',
@@ -27,7 +27,7 @@ const createColumns = (onEdit?: (item: SelectSKU) => void): ColumnDef<SelectSKU>
   },
   {
     accessorKey: 'costPrice',
-    header: 'Harga Beli',
+    header: 'Cost Price',
     cell: ({ row }) => {
       const price = parseFloat(row.getValue('costPrice'));
       return new Intl.NumberFormat('id-ID', {
@@ -38,11 +38,11 @@ const createColumns = (onEdit?: (item: SelectSKU) => void): ColumnDef<SelectSKU>
   },
   {
     accessorKey: 'stock',
-    header: 'Stok'
+    header: 'Stock'
   },
   {
     accessorKey: 'createdAt',
-    header: 'Tanggal Dibuat',
+    header: 'Created Date',
     cell: ({ row }) => {
       const date = new Date(row.getValue('createdAt'));
       return date.toLocaleDateString('id-ID');
@@ -50,7 +50,7 @@ const createColumns = (onEdit?: (item: SelectSKU) => void): ColumnDef<SelectSKU>
   },
   {
     id: 'actions',
-    header: 'Aksi',
+    header: 'Actions',
     cell: ({ row }) => {
       const sku = row.original;
       return (
@@ -70,7 +70,7 @@ export const SkuTable = ({ onEdit }: SkuTableProps) => {
   const { skus, isLoading } = useFetchSku();
 
   if (isLoading) {
-    return <div>Memuat data SKU...</div>;
+    return <div>Loading SKU data...</div>;
   }
 
   const columns = createColumns(onEdit);
