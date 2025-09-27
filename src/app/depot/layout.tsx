@@ -36,11 +36,8 @@ export default async function DepotLayout({ children }: { children: React.ReactN
 
   return (
     <AppLayout>
-      <div className="min-h-screen">
-        <Header />
-        {children}
-      </div>
-
+      <Header />
+      {children}
       <Toaster />
     </AppLayout>
   );

@@ -2,67 +2,150 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Button } from '~/components/ui/button';
-import { LogOut } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { LogOut, ChevronDown, ChevronRight } from 'lucide-react';
 import { Logo } from '../common/logo';
-import { menuItems } from './sidebar-menu-items';
-import { cn } from '~/utils/css';
+import { menuItems, MenuItem } from './sidebar-menu-items';
 import { signOut } from 'next-auth/react';
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem
+} from '~/components/ui/sidebar';
 
-export function Sidebar() {
+export function AppSidebar() {
   const pathname = usePathname();
+  const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
 
   const handleLogout = () => {
     signOut();
   };
 
+  const toggleMenu = (menuTitle: string) => {
+    setExpandedMenus((prev) =>
+      prev.includes(menuTitle) ? prev.filter((title) => title !== menuTitle) : [...prev, menuTitle]
+    );
+  };
+
+  const isMenuExpanded = (menuTitle: string) => {
+    return expandedMenus.includes(menuTitle);
+  };
+
+  const isActivePath = (item: MenuItem) => {
+    if (item.href) {
+      return item.href === pathname;
+    }
+    if (item.children) {
+      return item.children.some((child) => child.href === pathname);
+    }
+    return false;
+  };
+
+  // Auto-expand menu if current path matches any child
+  useEffect(() => {
+    const activeMenu = menuItems.find(
+      (item) => item.children && item.children.some((child) => child.href === pathname)
+    );
+
+    if (activeMenu && !expandedMenus.includes(activeMenu.title)) {
+      setExpandedMenus((prev) => [...prev, activeMenu.title]);
+    }
+  }, [pathname, expandedMenus]);
+
   return (
-    <div className="hidden md:flex flex-col w-64 bg-card border-r border-border h-screen flex-shrink-0">
-      {/* Header */}
-      <div className="p-6 flex-shrink-0">
+    <Sidebar>
+      <SidebarHeader>
         <Logo />
-      </div>
+      </SidebarHeader>
 
-      {/* Menu Items */}
-      <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground',
-                item.href === pathname
-                  ? 'bg-primary/10 text-primary border border-primary/20'
-                  : 'text-muted-foreground hover:text-foreground'
-              )}
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {menuItems.map((item) => {
+                const Icon = item.icon;
+                const hasChildren = item.children && item.children.length > 0;
+                const isActive = isActivePath(item);
+                const isExpanded = isMenuExpanded(item.title);
+
+                if (hasChildren) {
+                  return (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton
+                        onClick={() => toggleMenu(item.title)}
+                        isActive={isActive}
+                        tooltip={item.title}
+                      >
+                        <Icon />
+                        <span>{item.title}</span>
+                        {isExpanded ? (
+                          <ChevronDown className="ml-auto" />
+                        ) : (
+                          <ChevronRight className="ml-auto" />
+                        )}
+                      </SidebarMenuButton>
+
+                      {isExpanded && (
+                        <SidebarMenuSub>
+                          {item.children!.map((child) => {
+                            const ChildIcon = child.icon;
+                            const isChildActive = child.href === pathname;
+
+                            return (
+                              <SidebarMenuSubItem key={child.href}>
+                                <SidebarMenuSubButton asChild isActive={isChildActive}>
+                                  <Link href={child.href ?? ''}>
+                                    <ChildIcon />
+                                    <span>{child.title}</span>
+                                  </Link>
+                                </SidebarMenuSubButton>
+                              </SidebarMenuSubItem>
+                            );
+                          })}
+                        </SidebarMenuSub>
+                      )}
+                    </SidebarMenuItem>
+                  );
+                }
+
+                return (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton asChild isActive={isActive} tooltip={item.title}>
+                      <Link href={item.href ?? ''}>
+                        <Icon />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              onClick={handleLogout}
+              className="text-destructive hover:text-destructive hover:bg-destructive/10"
             >
-              <Icon
-                className={cn(
-                  'h-4 w-4 transition-colors duration-200',
-                  item.href === pathname
-                    ? 'text-primary'
-                    : 'text-muted-foreground group-hover:text-foreground'
-                )}
-              />
-              {item.title}
-            </Link>
-          );
-        })}
-      </nav>
-
-      {/* Logout Button */}
-      <div className="p-4 flex-shrink-0">
-        <Button
-          variant="outline"
-          onClick={handleLogout}
-          className="w-full justify-start gap-3 text-destructive hover:text-destructive hover:bg-destructive/10 hover:border-destructive/30 transition-colors duration-200"
-        >
-          <LogOut className="h-4 w-4" />
-          Logout
-        </Button>
-      </div>
-    </div>
+              <LogOut />
+              <span>Logout</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+    </Sidebar>
   );
 }

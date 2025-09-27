@@ -1,9 +1,8 @@
 'use client';
 
 import { ReactNode } from 'react';
-import { Sidebar } from './sidebar';
-import { SidebarMenu } from './sidebar-menu';
-import { Logo } from '../common/logo';
+import { SidebarProvider, SidebarInset, SidebarTrigger } from '~/components/ui/sidebar';
+import { AppSidebar } from './sidebar';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -11,21 +10,17 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   return (
-    <div className="flex h-screen bg-background overflow-hidden">
-      {/* Desktop Sidebar */}
-      <Sidebar />
+    <SidebarProvider>
+      <div className="flex h-screen bg-background overflow-hidden w-full">
+        {/* Desktop Sidebar */}
+        <AppSidebar />
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col w-full min-w-0">
-        {/* Mobile Header with Menu Button */}
-        <header className="md:hidden flex items-center justify-between p-4 bg-card border-b border-border flex-shrink-0">
-          <Logo />
-          <SidebarMenu />
-        </header>
-
-        {/* Page Content - Scrollable */}
-        <main className="flex-1 px-4 pb-4 md:px-6 md:pb-6 overflow-y-auto">{children}</main>
+        {/* Main Content */}
+        <SidebarInset>
+          {/* Page Content - Scrollable */}
+          <main className="flex-1 px-4 pb-4 md:px-6 md:pb-6 overflow-y-auto">{children}</main>
+        </SidebarInset>
       </div>
-    </div>
+    </SidebarProvider>
   );
 }

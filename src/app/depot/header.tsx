@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { FC } from 'react';
 import { LoadingProfilePicture } from '~/components/common/profile-picture';
+import { SidebarTrigger } from '~/components/ui/sidebar';
 import { cn } from '~/utils/css';
 
 const ProfilePicture = dynamic(
@@ -21,9 +22,12 @@ export const SpaceHeader: FC<Props> = ({ className }) => (
   <header
     className={cn('bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm dark:border-slate-700', className)}
   >
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="max-w-7xl mx-auto">
       <div className="flex items-center justify-between h-16">
-        <p className="font-semibold">Depot</p>
+        <div className="flex items-center gap-4">
+          <SidebarTrigger />
+          <p className="font-semibold">Depot</p>
+        </div>
 
         <div className="flex items-center space-x-4">
           <ProfilePicture />

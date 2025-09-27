@@ -1,4 +1,5 @@
 import { text, timestamp, pgTable, integer, primaryKey, pgEnum } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
 import type { AdapterAccountType } from '@auth/core/adapters';
 
 export const roleEnum = pgEnum('role', ['MANAGER', 'OPERATOR']);
@@ -57,3 +58,10 @@ export const verificationTokens = pgTable(
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] })
   })
 );
+
+// Import sku untuk relasi
+import { sku } from './sku';
+
+export const usersRelations = relations(users, ({ many }) => ({
+  createdSkus: many(sku)
+}));

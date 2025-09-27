@@ -1,10 +1,28 @@
-import { Package, Download, Upload, Home } from 'lucide-react';
+import { Package, Download, Upload, Home, Settings, ChevronDown, ChevronRight } from 'lucide-react';
 
-export const menuItems = [
+export interface MenuItem {
+  title: string;
+  href?: string;
+  icon: any;
+  children?: MenuItem[];
+}
+
+export const menuItems: MenuItem[] = [
   {
     title: 'Dashboard',
     href: '/depot',
     icon: Home
+  },
+  {
+    title: 'Master',
+    icon: Settings,
+    children: [
+      {
+        title: 'SKU',
+        href: '/depot/sku',
+        icon: Package
+      }
+    ]
   },
   {
     title: 'Stock In',

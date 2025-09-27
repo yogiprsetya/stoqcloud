@@ -15,6 +15,13 @@
       "when": 1758723533147,
       "tag": "0001_goofy_abomination",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1758957990528,
+      "tag": "0002_condemned_nightcrawler",
+      "breakpoints": true
     }
   ]
 }
