@@ -2,22 +2,17 @@
 
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
+import type { SelectSKU } from './schema';
 
 const SkuTable = dynamic(() => import('./sku-table').then((m) => m.SkuTable), {
   ssr: false
 });
 
-type Sku = {
-  id: string;
-  skuCode: string;
-  name: string;
-  category: string | null;
-  supplier: string | null;
-  costPrice: string; // decimal comes as string
-  stock: number;
-  createdAt: string;
-  updatedAt: string;
-};
+const DialogCreateSku = dynamic(() => import('./dialog-create-sku').then((m) => m.DialogCreateSku), {
+  ssr: false
+});
+
+// Using SelectSKU type from schema instead of custom type
 
 // const formSchema = z.object({
 //   skuCode: z.string().min(1),
@@ -30,19 +25,22 @@ type Sku = {
 
 export default function DepotSkuPage() {
   const [q, setQ] = useState('');
-  const [editing, setEditing] = useState<Sku | null>(null);
-  const [form, setForm] = useState({
-    skuCode: '',
-    name: '',
-    category: '',
-    supplier: '',
-    costPrice: 0,
-    stock: 0
-  });
+  const [editing, setEditing] = useState<SelectSKU | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const resetForm = () => {
-    setForm({ skuCode: '', name: '', category: '', supplier: '', costPrice: 0, stock: 0 });
+  const handleOpenModal = () => {
     setEditing(null);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setEditing(null);
+  };
+
+  const handleEdit = (item: SelectSKU) => {
+    setEditing(item);
+    setIsModalOpen(true);
   };
 
   // const onSubmit = async (e: React.FormEvent) => {
@@ -114,78 +112,17 @@ export default function DepotSkuPage() {
             onChange={(e) => setQ(e.target.value)}
           />
           <button
-            className="px-3 py-2 border rounded"
-            // onClick={load} disabled={loading}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            onClick={handleOpenModal}
           >
-            Cari
+            Tambah SKU
           </button>
         </div>
       </div>
 
-      {/* {error && <div className="mb-4 text-red-600">{error}</div>} */}
+      <SkuTable onEdit={handleEdit} />
 
-      <form
-        // onSubmit={onSubmit}
-        className="grid grid-cols-6 gap-3 mb-6"
-      >
-        <input
-          className="border px-3 py-2 col-span-2"
-          placeholder="SKU Code"
-          value={form.skuCode}
-          onChange={(e) => setForm((f) => ({ ...f, skuCode: e.target.value }))}
-        />
-        <input
-          className="border px-3 py-2 col-span-2"
-          placeholder="Name"
-          value={form.name}
-          onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-        />
-        <input
-          className="border px-3 py-2"
-          placeholder="Category"
-          value={form.category}
-          onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
-        />
-        <input
-          className="border px-3 py-2"
-          placeholder="Supplier"
-          value={form.supplier}
-          onChange={(e) => setForm((f) => ({ ...f, supplier: e.target.value }))}
-        />
-        <input
-          className="border px-3 py-2"
-          type="number"
-          step="0.01"
-          placeholder="Cost Price"
-          value={form.costPrice}
-          onChange={(e) => setForm((f) => ({ ...f, costPrice: Number(e.target.value) }))}
-        />
-        <input
-          className="border px-3 py-2"
-          type="number"
-          placeholder="Stock"
-          value={form.stock}
-          onChange={(e) => setForm((f) => ({ ...f, stock: Number(e.target.value) }))}
-        />
-        <button
-          className="px-3 py-2 border rounded col-span-6 md:col-span-1"
-          // disabled={loading}
-          type="submit"
-        >
-          {editing ? 'Update' : 'Create'}
-        </button>
-        {editing && (
-          <button
-            type="button"
-            className="px-3 py-2 border rounded col-span-6 md:col-span-1"
-            onClick={resetForm}
-          >
-            Cancel
-          </button>
-        )}
-      </form>
-
-      <SkuTable />
+      <DialogCreateSku isOpen={isModalOpen} onClose={handleCloseModal} editing={editing} />
     </div>
   );
 }
