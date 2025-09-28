@@ -12,8 +12,8 @@ export const formSchema = z.object({
   name: z.string().min(1, {
     message: 'Product name is required'
   }),
-  category: z.string(),
-  supplier: z.string(),
+  categoryId: z.string(),
+  supplierId: z.string(),
   costPrice: z.number().min(1, {
     message: 'Cost price cannot be negative'
   }),

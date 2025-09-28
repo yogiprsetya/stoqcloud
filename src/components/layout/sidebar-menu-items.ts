@@ -1,9 +1,9 @@
-import { Package, Download, Upload, Home, Settings, ChevronDown, ChevronRight } from 'lucide-react';
+import { Package, Download, Upload, Home, Settings, type LucideIcon } from 'lucide-react';
 
 export interface MenuItem {
   title: string;
   href?: string;
-  icon: any;
+  icon: LucideIcon;
   children?: Omit<MenuItem, 'icon'>[];
 }
 
@@ -20,6 +20,14 @@ export const menuItems: MenuItem[] = [
       {
         title: 'SKU',
         href: '/depot/sku'
+      },
+      {
+        title: 'Category',
+        href: '/depot/category'
+      },
+      {
+        title: 'Supplier',
+        href: '/depot/supplier'
       }
     ]
   },

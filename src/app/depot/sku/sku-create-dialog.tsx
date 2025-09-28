@@ -8,10 +8,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '~/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
-import { Barcode, Info } from 'lucide-react';
+import { Barcode } from 'lucide-react';
 import { formSchema, type SelectSKU } from './schema';
 import { useSku } from './use-sku';
+import { useFetchCategory } from '../category/use-fetch-category';
+import { useFetchSupplier } from '../supplier/use-fetch-supplier';
 import { If } from '~/components/ui/if';
 
 type FormData = z.infer<typeof formSchema>;
@@ -26,6 +29,8 @@ type SubmitIntention = 'save' | 'save-and-create';
 
 export const SkuCreateDialog = ({ isOpen, onClose, editing }: CreateSkuModalProps) => {
   const { isLoading, createSku, updateSku } = useSku();
+  const { categories } = useFetchCategory({ disabled: !isOpen });
+  const { suppliers } = useFetchSupplier({ disabled: !isOpen });
   const [submitIntention, setSubmitIntention] = useState<SubmitIntention>('save');
 
   const form = useForm<FormData>({
@@ -33,8 +38,8 @@ export const SkuCreateDialog = ({ isOpen, onClose, editing }: CreateSkuModalProp
     defaultValues: {
       skuCode: '',
       name: '',
-      category: '',
-      supplier: '',
+      categoryId: '',
+      supplierId: '',
       costPrice: 0,
       stock: 0
     }
@@ -50,8 +55,8 @@ export const SkuCreateDialog = ({ isOpen, onClose, editing }: CreateSkuModalProp
       form.reset({
         skuCode: editing.skuCode,
         name: editing.name,
-        category: editing.category || '',
-        supplier: editing.supplier || '',
+        categoryId: editing.categoryId || '',
+        supplierId: editing.supplierId || '',
         costPrice: Number(editing.costPrice),
         stock: editing.stock
       });
@@ -139,13 +144,24 @@ export const SkuCreateDialog = ({ isOpen, onClose, editing }: CreateSkuModalProp
 
               <FormField
                 control={form.control}
-                name="category"
+                name="categoryId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Category</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter category" {...field} />
-                    </FormControl>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select category" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {categories?.map((category) => (
+                          <SelectItem key={category.id} value={category.id}>
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -153,13 +169,24 @@ export const SkuCreateDialog = ({ isOpen, onClose, editing }: CreateSkuModalProp
 
               <FormField
                 control={form.control}
-                name="supplier"
+                name="supplierId"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Supplier</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter supplier" {...field} />
-                    </FormControl>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select supplier" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {suppliers?.map((supplier) => (
+                          <SelectItem key={supplier.id} value={supplier.id}>
+                            {supplier.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

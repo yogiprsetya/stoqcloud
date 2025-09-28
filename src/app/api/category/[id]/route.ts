@@ -1,12 +1,12 @@
 import { NextRequest } from 'next/server';
 import { db } from '~/db/config';
-import { sku } from '~/db/schema/sku';
-import { handleDataNotFound, handleExpiredSession, handleInvalidRequest } from '~/app/api/handle-error-res';
-import { handleSuccessResponse } from '~/app/api/handle-success-res';
-import { bodyParse } from '~/app/api/body-parse';
+import { category } from '~/db/schema/category';
 import { eq } from 'drizzle-orm';
 import { requireUserAuth } from '../../protect-route';
+import { handleSuccessResponse } from '../../handle-success-res';
+import { handleDataNotFound, handleExpiredSession, handleInvalidRequest } from '../../handle-error-res';
 import { createUpdateSchema } from 'drizzle-zod';
+import { bodyParse } from '../../body-parse';
 
 type Params = {
   params: Promise<{ id: string }>;
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest, context: Params) {
 
   return requireUserAuth(req, async (session) => {
     if (session) {
-      const [item] = await db.select().from(sku).where(eq(sku.id, id)).limit(1);
+      const [item] = await db.select().from(category).where(eq(category.id, id)).limit(1);
       return handleSuccessResponse(item);
     }
 
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest, context: Params) {
   });
 }
 
-const schema = createUpdateSchema(sku);
+const schema = createUpdateSchema(category);
 
 export async function PATCH(req: NextRequest, context: Params) {
   const { id } = await context.params;
@@ -38,16 +38,16 @@ export async function PATCH(req: NextRequest, context: Params) {
 
   return requireUserAuth(req, async (session) => {
     if (session) {
-      const updatedInventory = await db
-        .update(sku)
+      const updatedCategory = await db
+        .update(category)
         .set({
           ...data,
           updatedAt: new Date()
         })
-        .where(eq(sku.id, id))
+        .where(eq(category.id, id))
         .returning();
 
-      return handleSuccessResponse(updatedInventory[0]);
+      return handleSuccessResponse(updatedCategory[0]);
     }
 
     return handleExpiredSession();
@@ -59,7 +59,7 @@ export async function DELETE(req: NextRequest, context: Params) {
 
   return requireUserAuth(req, async (session) => {
     if (session) {
-      const result = await db.delete(sku).where(eq(sku.id, id)).returning();
+      const result = await db.delete(category).where(eq(category.id, id)).returning();
 
       if (!result.length) return handleDataNotFound();
 

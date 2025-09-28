@@ -1,21 +1,21 @@
 import { NextRequest } from 'next/server';
 import { db } from '~/db/config';
 import { sku } from '~/db/schema/sku';
+import { category } from '~/db/schema/category';
+import { supplier } from '~/db/schema/supplier';
 import { createInsertSchema } from 'drizzle-zod';
 import { handleExpiredSession, handleInvalidRequest } from '~/app/api/handle-error-res';
 import { handleSuccessResponse } from '~/app/api/handle-success-res';
 import { bodyParse } from '~/app/api/body-parse';
-import { and, asc, desc, ilike } from 'drizzle-orm';
+import { and, asc, desc, ilike, eq } from 'drizzle-orm';
 import { requireUserAuth } from '../protect-route';
 import { createMeta } from '../create-meta';
-
-const schema = createInsertSchema(sku).omit({ createdBy: true });
+import { LIMIT_DB_ROW } from '~/config/constant';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
 
   const params = {
-    limit: searchParams.get('limit'),
     keyword: searchParams.get('keyword'),
     page: searchParams.get('page'),
     sort: searchParams.get('sort') // asc | desc
@@ -23,9 +23,8 @@ export async function GET(req: NextRequest) {
 
   let sortedBy = desc(sku.createdAt);
 
-  const limitRow = Number(params?.limit || 10);
   const searchCodition = params.keyword ? ilike(sku.name, `%${params.keyword}%`) : undefined;
-  const offset = params.page ? (Number(params.page) - 1) * limitRow : 0;
+  const offset = params.page ? (Number(params.page) - 1) * LIMIT_DB_ROW : 0;
   const queryFilter = and(searchCodition);
   const sort = params.sort || 'asc';
 
@@ -39,11 +38,28 @@ export async function GET(req: NextRequest) {
 
   return requireUserAuth(req, async (session) => {
     if (session) {
-      const items = await db.select().from(sku).orderBy(sortedBy).offset(offset);
+      const items = await db
+        .select({
+          id: sku.id,
+          skuCode: sku.skuCode,
+          name: sku.name,
+          categoryId: sku.categoryId,
+          categoryName: category.name,
+          supplierId: sku.supplierId,
+          supplierName: supplier.name,
+          costPrice: sku.costPrice,
+          stock: sku.stock,
+          createdAt: sku.createdAt,
+          updatedAt: sku.updatedAt
+        })
+        .from(sku)
+        .leftJoin(category, eq(sku.categoryId, category.id))
+        .leftJoin(supplier, eq(sku.supplierId, supplier.id))
+        .orderBy(sortedBy)
+        .offset(offset);
 
       const meta = await createMeta({
         table: sku,
-        limit: limitRow,
         page: Number(params.page || 1),
         query: queryFilter
       });
@@ -55,6 +71,8 @@ export async function GET(req: NextRequest) {
   });
 }
 
+const schema = createInsertSchema(sku);
+
 export async function POST(req: NextRequest) {
   const body = await bodyParse(req);
   const { data, success, error } = schema.safeParse(body);
@@ -65,13 +83,7 @@ export async function POST(req: NextRequest) {
 
   return requireUserAuth(req, async (session) => {
     if (session) {
-      const [result] = await db
-        .insert(sku)
-        .values({
-          ...data,
-          createdBy: session.user.id
-        })
-        .returning();
+      const [result] = await db.insert(sku).values(data).returning();
 
       return handleSuccessResponse(result);
     }
