@@ -12,12 +12,12 @@ export const formSchema = z.object({
   name: z.string().min(1, {
     message: 'Product name is required'
   }),
-  category: z.string().optional(),
-  supplier: z.string().optional(),
-  costPrice: z.number().min(0, {
+  category: z.string(),
+  supplier: z.string(),
+  costPrice: z.number().min(1, {
     message: 'Cost price cannot be negative'
   }),
-  stock: z.number().int().min(0, {
+  stock: z.number().int().min(1, {
     message: 'Stock cannot be negative'
   })
 });

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -12,6 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
 import { Barcode, Info } from 'lucide-react';
 import { formSchema, type SelectSKU } from './schema';
 import { useSku } from './use-sku';
+import { If } from '~/components/ui/if';
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -21,8 +22,11 @@ interface CreateSkuModalProps {
   editing?: SelectSKU | null;
 }
 
+type SubmitIntention = 'save' | 'save-and-create';
+
 export const SkuCreateDialog = ({ isOpen, onClose, editing }: CreateSkuModalProps) => {
   const { isLoading, createSku, updateSku } = useSku();
+  const [submitIntention, setSubmitIntention] = useState<SubmitIntention>('save');
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -36,28 +40,49 @@ export const SkuCreateDialog = ({ isOpen, onClose, editing }: CreateSkuModalProp
     }
   });
 
+  const {
+    formState: { isValid }
+  } = form;
+
   // Reset form when modal opens/closes or when editing changes
   useEffect(() => {
-    if (isOpen) {
-      if (editing) {
-        form.reset({
-          skuCode: editing.skuCode,
-          name: editing.name,
-          category: editing.category || '',
-          supplier: editing.supplier || '',
-          costPrice: Number(editing.costPrice),
-          stock: editing.stock
-        });
-      }
+    if (isOpen && editing) {
+      form.reset({
+        skuCode: editing.skuCode,
+        name: editing.name,
+        category: editing.category || '',
+        supplier: editing.supplier || '',
+        costPrice: Number(editing.costPrice),
+        stock: editing.stock
+      });
     }
   }, [isOpen, editing, form]);
 
-  const handleSubmit = (data: FormData) => {
+  const handleSubmit = async (data: FormData, intention: SubmitIntention = 'save') => {
     if (editing) {
-      updateSku(data, editing.id);
+      const { success } = await updateSku(data, editing.id);
+      if (success) handleClose();
     } else {
-      createSku(data);
+      const { success } = await createSku(data);
+      if (success) {
+        if (intention === 'save-and-create') {
+          form.reset();
+          setTimeout(() => form.setFocus('skuCode'), 100);
+        } else {
+          handleClose();
+        }
+      }
     }
+  };
+
+  const handleSave = () => {
+    setSubmitIntention('save');
+    form.handleSubmit((data) => handleSubmit(data, 'save'))();
+  };
+
+  const handleSaveAndCreate = () => {
+    setSubmitIntention('save-and-create');
+    form.handleSubmit((data) => handleSubmit(data, 'save-and-create'))();
   };
 
   const handleClose = () => {
@@ -82,7 +107,7 @@ export const SkuCreateDialog = ({ isOpen, onClose, editing }: CreateSkuModalProp
         </Alert>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+          <form className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -182,14 +207,25 @@ export const SkuCreateDialog = ({ isOpen, onClose, editing }: CreateSkuModalProp
               />
             </div>
 
-            <DialogFooter className="flex gap-1">
+            <DialogFooter>
               <Button type="button" variant="outline" size="lg" onClick={handleClose} disabled={isLoading}>
                 Cancel
               </Button>
 
-              <Button type="submit" size="lg" disabled={isLoading}>
-                {isLoading ? 'Saving...' : editing ? 'Update' : 'Save'}
+              <Button type="button" size="lg" disabled={isLoading || !isValid} onClick={handleSave}>
+                {isLoading && submitIntention === 'save' ? 'Saving...' : editing ? 'Update' : 'Save'}
               </Button>
+
+              <If condition={!editing}>
+                <Button
+                  type="button"
+                  size="lg"
+                  disabled={isLoading || !isValid}
+                  onClick={handleSaveAndCreate}
+                >
+                  {isLoading && submitIntention === 'save-and-create' ? 'Saving...' : 'Save & Add'}
+                </Button>
+              </If>
             </DialogFooter>
           </form>
         </Form>

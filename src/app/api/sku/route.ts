@@ -9,7 +9,7 @@ import { and, asc, desc, ilike } from 'drizzle-orm';
 import { requireUserAuth } from '../protect-route';
 import { createMeta } from '../create-meta';
 
-const schema = createInsertSchema(sku);
+const schema = createInsertSchema(sku).omit({ createdBy: true });
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;

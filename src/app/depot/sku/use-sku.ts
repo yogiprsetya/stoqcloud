@@ -4,6 +4,7 @@ import { httpClient } from '~/config/http-client';
 import { errorHandler } from '~/utils/error-handler';
 import { formSchema } from './schema';
 import { toast } from 'sonner';
+import { mutate } from 'swr';
 
 type FormData = z.infer<typeof formSchema>;
 
@@ -11,10 +12,10 @@ export const useSku = () => {
   const [isLoading, setLoading] = useState(false);
 
   const createSku = useCallback((payload: FormData) => {
-    setLoading(false);
+    setLoading(true);
 
     return httpClient
-      .post('sku', payload)
+      .post('sku', { ...payload, costPrice: payload.costPrice.toString() })
       .then((res) => {
         if (!res.data.success) {
           toast.error(`Error! status: ${res.status}`);
@@ -23,6 +24,7 @@ export const useSku = () => {
 
         if (res.data.success) {
           toast.success('SKU successfully added to inventory!');
+          mutate('sku');
           return { success: true };
         }
 
@@ -34,7 +36,7 @@ export const useSku = () => {
   }, []);
 
   const updateSku = useCallback((payload: FormData, id: string) => {
-    setLoading(false);
+    setLoading(true);
 
     return httpClient
       .patch(`sku/${id}`, payload)
