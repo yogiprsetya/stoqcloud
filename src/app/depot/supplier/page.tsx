@@ -8,13 +8,26 @@ import { Badge } from '~/components/ui/badge';
 import { Plus, Search, Edit, Trash2, Mail, Phone, MapPin, User } from 'lucide-react';
 import { useFetchSupplier } from './use-fetch-supplier';
 import { type SelectSupplier } from './schema';
-import { SupplierCreateDialog } from './supplier-create-dialog';
+import dynamic from 'next/dynamic';
+
+const SupplierCreateDialog = dynamic(
+  () => import('./supplier-create-dialog').then((m) => m.SupplierCreateDialog),
+  { ssr: false }
+);
+
+const SupplierDeleteDialog = dynamic(
+  () => import('./supplier-delete-dialog').then((m) => m.SupplierDeleteDialog),
+  { ssr: false }
+);
 
 export default function SupplierPage() {
-  const { isLoading, suppliers } = useFetchSupplier();
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState<SelectSupplier | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deletingSupplier, setDeletingSupplier] = useState<SelectSupplier | null>(null);
+
+  const { isLoading, suppliers } = useFetchSupplier();
 
   return (
     <div className="space-y-6">
@@ -26,7 +39,7 @@ export default function SupplierPage() {
 
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground size-4" />
 
             <Input
               placeholder="Search suppliers..."
@@ -37,7 +50,7 @@ export default function SupplierPage() {
           </div>
 
           <Button onClick={() => setIsCreateDialogOpen(true)}>
-            <Plus className="h-4 w-4 mr-2" />
+            <Plus className="size-4 mr-2" />
             Add Supplier
           </Button>
         </div>
@@ -62,28 +75,28 @@ export default function SupplierPage() {
 
                     {supplier.contactPerson && (
                       <div className="flex items-center mt-2 text-sm text-muted-foreground">
-                        <User className="h-4 w-4 mr-2" />
+                        <User className="size-4 mr-2" />
                         {supplier.contactPerson}
                       </div>
                     )}
 
                     {supplier.email && (
                       <div className="flex items-center mt-1 text-sm text-muted-foreground">
-                        <Mail className="h-4 w-4 mr-2" />
+                        <Mail className="size-4 mr-2" />
                         {supplier.email}
                       </div>
                     )}
 
                     {supplier.phone && (
                       <div className="flex items-center mt-1 text-sm text-muted-foreground">
-                        <Phone className="h-4 w-4 mr-2" />
+                        <Phone className="size-4 mr-2" />
                         {supplier.phone}
                       </div>
                     )}
 
                     {supplier.address && (
                       <div className="flex items-start mt-1 text-sm text-muted-foreground">
-                        <MapPin className="h-4 w-4 mr-2 mt-0.5 flex-shrink-0" />
+                        <MapPin className="size-4 mr-2 mt-0.5 flex-shrink-0" />
                         <span className="line-clamp-2">{supplier.address}</span>
                       </div>
                     )}
@@ -95,11 +108,18 @@ export default function SupplierPage() {
 
                   <div className="flex space-x-1 ml-2">
                     <Button variant="ghost" size="sm" onClick={() => setEditingSupplier(supplier)}>
-                      <Edit className="h-4 w-4" />
+                      <Edit className="size-4" />
                     </Button>
 
-                    <Button variant="ghost" size="sm">
-                      <Trash2 className="h-4 w-4" />
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setDeletingSupplier(supplier);
+                        setIsDeleteDialogOpen(true);
+                      }}
+                    >
+                      <Trash2 className="size-4" />
                     </Button>
                   </div>
                 </div>
@@ -116,6 +136,15 @@ export default function SupplierPage() {
           setEditingSupplier(null);
         }}
         editing={editingSupplier}
+      />
+
+      <SupplierDeleteDialog
+        isOpen={isDeleteDialogOpen}
+        supplier={deletingSupplier}
+        onClose={() => {
+          setIsDeleteDialogOpen(false);
+          setDeletingSupplier(null);
+        }}
       />
     </div>
   );
