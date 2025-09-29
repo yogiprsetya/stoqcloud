@@ -17,19 +17,14 @@ export const useSku = () => {
     return httpClient
       .post('sku', { ...payload, costPrice: payload.costPrice.toString() })
       .then((res) => {
-        if (!res.data.success) {
-          toast.error(`Error! status: ${res.status}`);
-          return { success: false };
-        }
-
         if (res.data.success) {
           toast.success('SKU successfully added to inventory!');
           mutate('sku');
-          return { success: true };
+        } else {
+          toast.error(`Error! status: ${res.status}`);
         }
 
-        toast.error('Failed to add SKU');
-        return { success: false };
+        return { success: res.data.success };
       })
       .catch(errorHandler)
       .finally(() => setLoading(false));
@@ -41,18 +36,14 @@ export const useSku = () => {
     return httpClient
       .patch(`sku/${id}`, payload)
       .then((res) => {
-        if (!res.data.success) {
-          toast.error(`Error! status: ${res.status}`);
-          return { success: false };
-        }
-
         if (res.data.success) {
           toast.success('SKU successfully updated!');
-          return { success: true };
+          mutate('sku');
+        } else {
+          toast.error(`Error! status: ${res.status}`);
         }
 
-        toast.error('Failed to save SKU');
-        return { success: false };
+        return { success: res.data.success };
       })
       .catch(errorHandler)
       .finally(() => setLoading(false));

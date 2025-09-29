@@ -17,19 +17,14 @@ export const useActionsSupplier = () => {
     return httpClient
       .post('supplier', payload)
       .then((res) => {
-        if (!res.data.success) {
-          toast.error(`Error! status: ${res.status}`);
-          return { success: false };
-        }
-
         if (res.data.success) {
           toast.success('Supplier successfully created!');
           mutate('supplier');
-          return { success: true };
+        } else {
+          toast.error(`Error! status: ${res.status}`);
         }
 
-        toast.error('Failed to create supplier');
-        return { success: false };
+        return { success: res.data.success };
       })
       .catch(errorHandler)
       .finally(() => setLoading(false));
@@ -41,19 +36,15 @@ export const useActionsSupplier = () => {
     return httpClient
       .patch(`supplier/${id}`, payload)
       .then((res) => {
-        if (!res.data.success) {
-          toast.error(`Error! status: ${res.status}`);
-          return { success: false };
-        }
-
         if (res.data.success) {
           toast.success('Supplier successfully updated!');
           mutate('supplier');
-          return { success: true };
+        } else {
+          toast.error(`Error! status: ${res.status}`);
         }
 
         toast.error('Failed to update supplier');
-        return { success: false };
+        return { success: res.data.success };
       })
       .catch(errorHandler)
       .finally(() => setLoading(false));
@@ -65,19 +56,15 @@ export const useActionsSupplier = () => {
     return httpClient
       .delete(`supplier/${id}`)
       .then((res) => {
-        if (!res.data.success) {
-          toast.error(`Error! status: ${res.status}`);
-          return { success: false };
-        }
-
         if (res.data.success) {
           toast.success('Supplier successfully deleted!');
           mutate('supplier');
-          return { success: true };
+        } else {
+          toast.error(`Error! status: ${res.status}`);
         }
 
         toast.error('Failed to delete supplier');
-        return { success: false };
+        return { success: res.data.success };
       })
       .catch(errorHandler)
       .finally(() => setLoading(false));
