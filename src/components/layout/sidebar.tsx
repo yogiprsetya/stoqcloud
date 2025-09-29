@@ -67,7 +67,7 @@ export function AppSidebar() {
         <Logo />
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="mt-6">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Card, CardContent } from '~/components/ui/card';
@@ -8,12 +9,27 @@ import { Badge } from '~/components/ui/badge';
 import { Search, Edit, Trash2 } from 'lucide-react';
 import { useFetchCategory } from './use-fetch-category';
 import { type SelectCategory } from './schema';
-import { CategoryCreateDialog } from './category-create-dialog';
+
+const CategoryCreateDialog = dynamic(
+  () => import('./category-create-dialog').then((module) => ({ default: module.CategoryCreateDialog })),
+  {
+    ssr: false
+  }
+);
+
+const CategoryDeleteDialog = dynamic(
+  () => import('./category-delete-dialog').then((module) => ({ default: module.CategoryDeleteDialog })),
+  {
+    ssr: false
+  }
+);
 
 export default function CategoryPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<SelectCategory | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deletingCategory, setDeletingCategory] = useState<SelectCategory | null>(null);
 
   const { categories, isLoading } = useFetchCategory();
 
@@ -70,7 +86,14 @@ export default function CategoryPage() {
                       <Edit className="h-4 w-4" />
                     </Button>
 
-                    <Button variant="ghost" size="sm">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setDeletingCategory(category);
+                        setIsDeleteDialogOpen(true);
+                      }}
+                    >
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
@@ -88,6 +111,15 @@ export default function CategoryPage() {
           setEditingCategory(null);
         }}
         editing={editingCategory}
+      />
+
+      <CategoryDeleteDialog
+        isOpen={isDeleteDialogOpen}
+        onClose={() => {
+          setIsDeleteDialogOpen(false);
+          setDeletingCategory(null);
+        }}
+        category={deletingCategory}
       />
     </div>
   );
