@@ -3,6 +3,7 @@ import { DataTable } from '~/components/common/data-table';
 import { useFetchSku } from './use-fetch-sku';
 import type { SelectSKU } from './schema';
 import { Button } from '~/components/ui/button';
+import { formatRp } from '~/utils/rupiah';
 
 interface SkuTableProps {
   onEdit?: (item: SelectSKU) => void;
@@ -18,11 +19,11 @@ const createColumns = (onEdit?: (item: SelectSKU) => void): ColumnDef<SelectSKU>
     header: 'Product Name'
   },
   {
-    accessorKey: 'category',
+    accessorKey: 'category.name',
     header: 'Category'
   },
   {
-    accessorKey: 'supplier',
+    accessorKey: 'supplier.name',
     header: 'Supplier'
   },
   {
@@ -30,10 +31,7 @@ const createColumns = (onEdit?: (item: SelectSKU) => void): ColumnDef<SelectSKU>
     header: 'Cost Price',
     cell: ({ row }) => {
       const price = parseFloat(row.getValue('costPrice'));
-      return new Intl.NumberFormat('id-ID', {
-        style: 'currency',
-        currency: 'IDR'
-      }).format(price);
+      return formatRp(price);
     }
   },
   {

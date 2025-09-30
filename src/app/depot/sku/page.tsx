@@ -14,17 +14,6 @@ const SkuCreateDialog = dynamic(() => import('./sku-create-dialog').then((m) => 
   ssr: false
 });
 
-// Using SelectSKU type from schema instead of custom type
-
-// const formSchema = z.object({
-//   skuCode: z.string().min(1),
-//   name: z.string().min(1),
-//   category: z.string().optional(),
-//   supplier: z.string().optional(),
-//   costPrice: z.coerce.number().nonnegative(),
-//   stock: z.coerce.number().int().nonnegative()
-// });
-
 export default function DepotSkuPage() {
   const [q, setQ] = useState('');
   const [editing, setEditing] = useState<SelectSKU | null>(null);
@@ -44,38 +33,6 @@ export default function DepotSkuPage() {
     setEditing(item);
     setIsModalOpen(true);
   };
-
-  // const onSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  //   const parsed = formSchema.safeParse(form);
-  //   if (!parsed.success) {
-  //     setError('Form is not valid');
-  //     return;
-  //   }
-  //   try {
-  //     setLoading(true);
-  //     setError(null);
-  //     if (editing) {
-  //       await fetch(`/api/sku/${editing.id}`, {
-  //         method: 'PATCH',
-  //         headers: { 'Content-Type': 'application/json' },
-  //         body: JSON.stringify(parsed.data)
-  //       });
-  //     } else {
-  //       await fetch('/api/sku', {
-  //         method: 'POST',
-  //         headers: { 'Content-Type': 'application/json' },
-  //         body: JSON.stringify(parsed.data)
-  //       });
-  //     }
-  //     resetForm();
-  //     await load();
-  //   } catch (e) {
-  //     setError(e?.message || 'Failed to save');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   // const onEdit = (item: Sku) => {
   //   setEditing(item);

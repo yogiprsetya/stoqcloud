@@ -43,10 +43,14 @@ export async function GET(req: NextRequest) {
           id: sku.id,
           skuCode: sku.skuCode,
           name: sku.name,
-          categoryId: sku.categoryId,
-          categoryName: category.name,
-          supplierId: sku.supplierId,
-          supplierName: supplier.name,
+          category: {
+            id: sku.categoryId,
+            name: category.name
+          },
+          supplier: {
+            id: sku.supplierId,
+            name: supplier.name
+          },
           costPrice: sku.costPrice,
           stock: sku.stock,
           createdAt: sku.createdAt,

@@ -27,7 +27,7 @@ export function AppSidebar() {
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
 
   const handleLogout = () => {
-    signOut();
+    signOut({ callbackUrl: '/signin' });
   };
 
   const toggleMenu = (menuTitle: string) => {
