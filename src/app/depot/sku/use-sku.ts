@@ -19,7 +19,7 @@ export const useSku = () => {
       .then((res) => {
         if (res.data.success) {
           toast.success('SKU successfully added to inventory!');
-          mutate('sku');
+          mutate((key) => typeof key === 'string' && key.startsWith('sku'));
         } else {
           toast.error(`Error! status: ${res.status}`);
         }
@@ -38,7 +38,7 @@ export const useSku = () => {
       .then((res) => {
         if (res.data.success) {
           toast.success('SKU successfully updated!');
-          mutate('sku');
+          mutate((key) => typeof key === 'string' && key.startsWith('sku'));
         } else {
           toast.error(`Error! status: ${res.status}`);
         }
@@ -49,5 +49,24 @@ export const useSku = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  return { isLoading, createSku, updateSku };
+  const deleteSku = useCallback((id: string) => {
+    setLoading(true);
+
+    return httpClient
+      .delete(`sku/${id}`)
+      .then((res) => {
+        if (res.data.success) {
+          toast.success('SKU successfully deleted!');
+          mutate((key) => typeof key === 'string' && key.startsWith('sku'));
+        } else {
+          toast.error(`Error! status: ${res.status}`);
+        }
+
+        return { success: res.data.success };
+      })
+      .catch(errorHandler)
+      .finally(() => setLoading(false));
+  }, []);
+
+  return { isLoading, createSku, updateSku, deleteSku };
 };

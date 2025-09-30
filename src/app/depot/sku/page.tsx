@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 import type { SelectSKU } from './schema';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
+import { useDebounce } from 'use-debounce';
 
 const SkuTable = dynamic(() => import('./sku-table').then((m) => m.SkuTable), {
   ssr: false
@@ -14,10 +15,18 @@ const SkuCreateDialog = dynamic(() => import('./sku-create-dialog').then((m) => 
   ssr: false
 });
 
+const SkuDeleteDialog = dynamic(() => import('./sku-delete-dialog').then((m) => m.SkuDeleteDialog), {
+  ssr: false
+});
+
 export default function DepotSkuPage() {
   const [q, setQ] = useState('');
   const [editing, setEditing] = useState<SelectSKU | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState<SelectSKU | null>(null);
+
+  const [debouncedQ] = useDebounce(q, 500);
 
   const handleOpenModal = () => {
     setEditing(null);
@@ -34,30 +43,10 @@ export default function DepotSkuPage() {
     setIsModalOpen(true);
   };
 
-  // const onEdit = (item: Sku) => {
-  //   setEditing(item);
-  //   setForm({
-  //     skuCode: item.skuCode,
-  //     name: item.name,
-  //     category: item.category || '',
-  //     supplier: item.supplier || '',
-  //     costPrice: Number(item.costPrice),
-  //     stock: item.stock
-  //   });
-  // };
-
-  // const onDelete = async (item: Sku) => {
-  //   if (!confirm(`Hapus SKU ${item.skuCode}?`)) return;
-  //   try {
-  //     setLoading(true);
-  //     await fetch(`/api/sku/${item.id}`, { method: 'DELETE' });
-  //     await load();
-  //   } catch (e: any) {
-  //     setError(e?.message || 'Failed to delete');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  const handleDelete = (item: SelectSKU) => {
+    setDeleting(item);
+    setIsDeleteOpen(true);
+  };
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -70,9 +59,18 @@ export default function DepotSkuPage() {
         </div>
       </div>
 
-      <SkuTable onEdit={handleEdit} />
+      <SkuTable onEdit={handleEdit} onDelete={handleDelete} keyword={debouncedQ} />
 
       <SkuCreateDialog isOpen={isModalOpen} onClose={handleCloseModal} editing={editing} />
+
+      <SkuDeleteDialog
+        isOpen={isDeleteOpen}
+        onClose={() => {
+          setIsDeleteOpen(false);
+          setDeleting(null);
+        }}
+        sku={deleting}
+      />
     </div>
   );
 }

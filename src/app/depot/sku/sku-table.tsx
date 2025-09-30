@@ -4,12 +4,18 @@ import { useFetchSku } from './use-fetch-sku';
 import type { SelectSKU } from './schema';
 import { Button } from '~/components/ui/button';
 import { formatRp } from '~/utils/rupiah';
+import { Pencil, Trash } from 'lucide-react';
 
 interface SkuTableProps {
-  onEdit?: (item: SelectSKU) => void;
+  onEdit: (item: SelectSKU) => void;
+  onDelete: (item: SelectSKU) => void;
+  keyword?: string;
 }
 
-const createColumns = (onEdit?: (item: SelectSKU) => void): ColumnDef<SelectSKU>[] => [
+const createColumns = (
+  onEdit: (item: SelectSKU) => void,
+  onDelete: (item: SelectSKU) => void
+): ColumnDef<SelectSKU>[] => [
   {
     accessorKey: 'skuCode',
     header: 'SKU Code'
@@ -49,29 +55,38 @@ const createColumns = (onEdit?: (item: SelectSKU) => void): ColumnDef<SelectSKU>
   {
     id: 'actions',
     header: 'Actions',
-    cell: ({ row }) => {
-      const sku = row.original;
-      return (
-        <div className="flex gap-2">
-          {onEdit && (
-            <Button variant="outline" size="sm" onClick={() => onEdit(sku)}>
-              Edit
-            </Button>
-          )}
-        </div>
-      );
-    }
+    cell: ({ row }) => (
+      <div className="flex gap-1">
+        <Button
+          variant="outline"
+          title={`edit ${row.original.name}`}
+          size="icon-sm"
+          onClick={() => onEdit(row.original)}
+        >
+          <Pencil />
+        </Button>
+
+        <Button
+          variant="destructive"
+          title={`delete ${row.original.name}`}
+          size="icon-sm"
+          onClick={() => onDelete(row.original)}
+        >
+          <Trash />
+        </Button>
+      </div>
+    )
   }
 ];
 
-export const SkuTable = ({ onEdit }: SkuTableProps) => {
-  const { skus, isLoading } = useFetchSku();
+export const SkuTable = ({ onEdit, onDelete, keyword }: SkuTableProps) => {
+  const { skus, isLoading } = useFetchSku({ keyword });
 
   if (isLoading) {
     return <div>Loading SKU data...</div>;
   }
 
-  const columns = createColumns(onEdit);
+  const columns = createColumns(onEdit, onDelete);
 
   return <DataTable columns={columns} data={skus ?? []} />;
 };

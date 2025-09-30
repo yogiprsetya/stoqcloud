@@ -18,7 +18,8 @@ export async function GET(req: NextRequest) {
   const params = {
     keyword: searchParams.get('keyword'),
     page: searchParams.get('page'),
-    sort: searchParams.get('sort') // asc | desc
+    sort: searchParams.get('sort'), // asc | desc
+    sortBy: searchParams.get('sortBy') // name | createdAt
   };
 
   let sortedBy = desc(sku.createdAt);
@@ -27,13 +28,14 @@ export async function GET(req: NextRequest) {
   const offset = params.page ? (Number(params.page) - 1) * LIMIT_DB_ROW : 0;
   const queryFilter = and(searchCodition);
   const sort = params.sort || 'asc';
+  const sortBy = params.sortBy || 'createdAt';
 
   if (sort === 'asc') {
-    sortedBy = asc(sku.createdAt);
+    sortedBy = sortBy === 'name' ? asc(sku.name) : asc(sku.createdAt);
   }
 
   if (sort === 'desc') {
-    sortedBy = desc(sku.createdAt);
+    sortedBy = sortBy === 'name' ? desc(sku.name) : desc(sku.createdAt);
   }
 
   return requireUserAuth(req, async (session) => {
