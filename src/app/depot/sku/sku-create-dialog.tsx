@@ -55,8 +55,8 @@ export const SkuCreateDialog = ({ isOpen, onClose, editing }: CreateSkuModalProp
       form.reset({
         skuCode: editing.skuCode,
         name: editing.name,
-        categoryId: editing.categoryId || '',
-        supplierId: editing.supplierId || '',
+        categoryId: (editing as any).categoryId || (editing as any).category?.id || '',
+        supplierId: (editing as any).supplierId || (editing as any).supplier?.id || '',
         costPrice: Number(editing.costPrice),
         stock: editing.stock
       });
@@ -148,12 +148,13 @@ export const SkuCreateDialog = ({ isOpen, onClose, editing }: CreateSkuModalProp
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Category</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
                       </FormControl>
+
                       <SelectContent>
                         {categories?.map((category) => (
                           <SelectItem key={category.id} value={category.id}>
@@ -173,12 +174,13 @@ export const SkuCreateDialog = ({ isOpen, onClose, editing }: CreateSkuModalProp
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Supplier</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Select supplier" />
                         </SelectTrigger>
                       </FormControl>
+
                       <SelectContent>
                         {suppliers?.map((supplier) => (
                           <SelectItem key={supplier.id} value={supplier.id}>

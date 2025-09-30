@@ -34,7 +34,7 @@ export const useSku = () => {
     setLoading(true);
 
     return httpClient
-      .patch(`sku/${id}`, payload)
+      .patch(`sku/${id}`, { ...payload, costPrice: payload.costPrice.toString() })
       .then((res) => {
         if (res.data.success) {
           toast.success('SKU successfully updated!');
