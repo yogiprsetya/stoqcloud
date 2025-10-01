@@ -82,7 +82,14 @@ export default function CategoryPage() {
                   </div>
 
                   <div className="flex space-x-1 ml-2">
-                    <Button variant="ghost" size="sm" onClick={() => setEditingCategory(category)}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setEditingCategory(category);
+                        setIsCreateDialogOpen(true);
+                      }}
+                    >
                       <Edit className="h-4 w-4" />
                     </Button>
 

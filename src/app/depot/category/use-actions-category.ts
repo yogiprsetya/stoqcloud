@@ -18,10 +18,10 @@ export const useActionsCategory = () => {
       .post('category', payload)
       .then((res) => {
         if (res.data.success) {
-          toast.success('Category successfully created!');
+          toast.success('Category created successfully!');
           mutate('category');
         } else {
-          toast.error(`Error! status: ${res.status}`);
+          toast.error(`Failed to create category! Status: ${res.status}`);
         }
 
         return { success: res.data.success };
@@ -37,10 +37,10 @@ export const useActionsCategory = () => {
       .patch(`category/${id}`, payload)
       .then((res) => {
         if (res.data.success) {
-          toast.success('Category successfully updated!');
+          toast.success('Category updated successfully!');
           mutate('category');
         } else {
-          toast.error(`Error! status: ${res.status}`);
+          toast.error(`Failed to update category! Status: ${res.status}`);
         }
 
         return { success: res.data.success };
@@ -56,10 +56,10 @@ export const useActionsCategory = () => {
       .delete(`category/${id}`)
       .then((res) => {
         if (res.data.success) {
-          toast.success('Category successfully deleted!');
+          toast.success('Category deleted successfully!');
           mutate('category');
         } else {
-          toast.error(`Error! status: ${res.status}`);
+          toast.error(`Failed to delete category! Status: ${res.status}`);
         }
 
         return { success: res.data.success };

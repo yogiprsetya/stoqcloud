@@ -50,11 +50,16 @@ export const CategoryCreateDialog = ({ isOpen, onClose, editing }: CategoryCreat
   }, [isOpen, editing, form]);
 
   const handleSubmit = async (data: FormData) => {
+    const cleanedData = {
+      name: data.name.trim(),
+      description: data.description?.trim() || undefined
+    };
+
     if (editing) {
-      const { success } = await updateCategory(data, editing?.id || '');
+      const { success } = await updateCategory(cleanedData, editing?.id || '');
       if (success) handleClose();
     } else {
-      const { success } = await createCategory(data);
+      const { success } = await createCategory(cleanedData);
       if (success) handleClose();
     }
   };
@@ -107,7 +112,7 @@ export const CategoryCreateDialog = ({ isOpen, onClose, editing }: CategoryCreat
               </Button>
 
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Saving...' : editing ? 'Update' : 'Save'}
+                {isLoading ? (editing ? 'Updating...' : 'Saving...') : editing ? 'Update' : 'Save'}
               </Button>
             </DialogFooter>
           </form>
