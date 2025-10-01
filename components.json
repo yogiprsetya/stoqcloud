@@ -15,7 +15,7 @@
     "components": "~/components",
     "utils": "~/utils/css",
     "ui": "~/components/ui",
-    "lib": "~/utils",
+    "lib": "~/utils/css",
     "hooks": "~/hooks"
   },
   "registries": {}
