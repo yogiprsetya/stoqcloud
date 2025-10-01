@@ -6,6 +6,8 @@ import { Button } from '~/components/ui/button';
 import { formatRp } from '~/utils/rupiah';
 import { Pencil, Trash } from 'lucide-react';
 
+const MAX_NAME_LENGTH = 30;
+
 interface SkuTableProps {
   onEdit: (item: SelectSKU) => void;
   onDelete: (item: SelectSKU) => void;
@@ -22,7 +24,16 @@ const createColumns = (
   },
   {
     accessorKey: 'name',
-    header: 'Product Name'
+    header: 'Product Name',
+    cell: ({ row }) => {
+      const name = row.getValue('name') as string;
+
+      return name.length > MAX_NAME_LENGTH ? (
+        <span title={name}>{name.substring(0, MAX_NAME_LENGTH)}...</span>
+      ) : (
+        name
+      );
+    }
   },
   {
     accessorKey: 'category.name',
@@ -80,7 +91,7 @@ const createColumns = (
 ];
 
 export const SkuTable = ({ onEdit, onDelete, keyword }: SkuTableProps) => {
-  const { skus, isLoading } = useFetchSku({ keyword });
+  const { skus, meta, isLoading, setPage } = useFetchSku({ keyword });
 
   if (isLoading) {
     return <div>Loading SKU data...</div>;
@@ -88,5 +99,33 @@ export const SkuTable = ({ onEdit, onDelete, keyword }: SkuTableProps) => {
 
   const columns = createColumns(onEdit, onDelete);
 
-  return <DataTable columns={columns} data={skus ?? []} />;
+  const canPrev = (meta?.currentPage ?? 1) > 1;
+  const canNext = (meta?.currentPage ?? 1) < (meta?.totalPages ?? 1);
+
+  return (
+    <div className="space-y-3">
+      <DataTable columns={columns} data={skus ?? []} />
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-muted-foreground">
+          Halaman {meta?.currentPage ?? 1} dari {meta?.totalPages ?? 1} • Total {meta?.totalCount ?? 0}
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            disabled={!canPrev}
+            onClick={() => canPrev && setPage(meta!.currentPage - 1)}
+          >
+            Prev
+          </Button>
+          <Button
+            variant="outline"
+            disabled={!canNext}
+            onClick={() => canNext && setPage(meta!.currentPage + 1)}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 };

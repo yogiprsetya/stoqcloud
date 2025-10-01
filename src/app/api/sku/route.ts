@@ -62,7 +62,8 @@ export async function GET(req: NextRequest) {
         .leftJoin(category, eq(sku.categoryId, category.id))
         .leftJoin(supplier, eq(sku.supplierId, supplier.id))
         .orderBy(sortedBy)
-        .offset(offset);
+        .offset(offset)
+        .limit(LIMIT_DB_ROW);
 
       const meta = await createMeta({
         table: sku,

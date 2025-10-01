@@ -29,6 +29,7 @@ export const useFetchSku = (params?: Params, opt?: Options) => {
 
   return {
     skus: data?.data || null,
+    meta: data?.meta,
     isLoading,
     error,
     mutate,
