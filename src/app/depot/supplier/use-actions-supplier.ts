@@ -18,10 +18,10 @@ export const useActionsSupplier = () => {
       .post('supplier', payload)
       .then((res) => {
         if (res.data.success) {
-          toast.success('Supplier successfully created!');
+          toast.success('Supplier created successfully!');
           mutate('supplier');
         } else {
-          toast.error(`Error! status: ${res.status}`);
+          toast.error(`Failed to create supplier! Status: ${res.status}`);
         }
 
         return { success: res.data.success };
@@ -37,13 +37,12 @@ export const useActionsSupplier = () => {
       .patch(`supplier/${id}`, payload)
       .then((res) => {
         if (res.data.success) {
-          toast.success('Supplier successfully updated!');
+          toast.success('Supplier updated successfully!');
           mutate('supplier');
         } else {
-          toast.error(`Error! status: ${res.status}`);
+          toast.error(`Failed to update supplier! Status: ${res.status}`);
         }
 
-        toast.error('Failed to update supplier');
         return { success: res.data.success };
       })
       .catch(errorHandler)
@@ -57,13 +56,12 @@ export const useActionsSupplier = () => {
       .delete(`supplier/${id}`)
       .then((res) => {
         if (res.data.success) {
-          toast.success('Supplier successfully deleted!');
+          toast.success('Supplier deleted successfully!');
           mutate('supplier');
         } else {
-          toast.error(`Error! status: ${res.status}`);
+          toast.error(`Failed to delete supplier! Status: ${res.status}`);
         }
 
-        toast.error('Failed to delete supplier');
         return { success: res.data.success };
       })
       .catch(errorHandler)

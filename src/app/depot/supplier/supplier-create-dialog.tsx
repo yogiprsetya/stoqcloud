@@ -9,14 +9,9 @@ import { Input } from '~/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '~/components/ui/form';
 import { supplierFormSchema, type SelectSupplier } from './schema';
 import { useActionsSupplier } from './use-actions-supplier';
+import z from 'zod';
 
-type FormData = {
-  name: string;
-  contactPerson?: string;
-  email?: string;
-  phone?: string;
-  address?: string;
-};
+type FormData = z.infer<typeof supplierFormSchema>;
 
 interface SupplierCreateDialogProps {
   isOpen: boolean;
@@ -56,11 +51,19 @@ export const SupplierCreateDialog = ({ isOpen, onClose, editing }: SupplierCreat
   }, [isOpen, editing, form]);
 
   const handleSubmit = async (data: FormData) => {
+    const cleanedData = {
+      name: data.name.trim(),
+      contactPerson: data.contactPerson?.trim() || undefined,
+      email: data.email?.trim() || undefined,
+      phone: data.phone?.trim() || undefined,
+      address: data.address?.trim() || undefined
+    };
+
     if (editing) {
-      const { success } = await updateSupplier(data, editing.id);
+      const { success } = await updateSupplier(cleanedData, editing.id);
       if (success) handleClose();
     } else {
-      const { success } = await createSupplier(data);
+      const { success } = await createSupplier(cleanedData);
       if (success) handleClose();
     }
   };
@@ -157,7 +160,7 @@ export const SupplierCreateDialog = ({ isOpen, onClose, editing }: SupplierCreat
               </Button>
 
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? 'Saving...' : editing ? 'Update' : 'Save'}
+                {isLoading ? (editing ? 'Updating...' : 'Saving...') : editing ? 'Update' : 'Save'}
               </Button>
             </DialogFooter>
           </form>

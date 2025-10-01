@@ -107,7 +107,14 @@ export default function SupplierPage() {
                   </div>
 
                   <div className="flex space-x-1 ml-2">
-                    <Button variant="ghost" size="sm" onClick={() => setEditingSupplier(supplier)}>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setEditingSupplier(supplier);
+                        setIsCreateDialogOpen(true);
+                      }}
+                    >
                       <Edit className="size-4" />
                     </Button>
 
