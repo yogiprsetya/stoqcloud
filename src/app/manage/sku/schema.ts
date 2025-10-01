@@ -2,7 +2,16 @@ import { InferSelectModel } from 'drizzle-orm';
 import z from 'zod';
 import { sku } from '~/db/schema/sku';
 
-export type SelectSKU = InferSelectModel<typeof sku>;
+export type SelectSKU = Omit<InferSelectModel<typeof sku>, 'categoryId' | 'supplierId'> & {
+  category: {
+    id: string;
+    name: string;
+  };
+  supplier: {
+    id: string;
+    name: string;
+  };
+};
 
 // Define form schema with Zod
 export const formSchema = z.object({

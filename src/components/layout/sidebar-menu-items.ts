@@ -10,7 +10,7 @@ export interface MenuItem {
 export const menuItems: MenuItem[] = [
   {
     title: 'Dashboard',
-    href: '/depot',
+    href: '/manage',
     icon: Home
   },
   {
@@ -19,31 +19,31 @@ export const menuItems: MenuItem[] = [
     children: [
       {
         title: 'SKU',
-        href: '/depot/sku'
+        href: '/manage/sku'
       },
       {
         title: 'Category',
-        href: '/depot/category'
+        href: '/manage/category'
       },
       {
         title: 'Supplier',
-        href: '/depot/supplier'
+        href: '/manage/supplier'
       }
     ]
   },
   {
     title: 'Stock In',
-    href: '/depot/stock-in',
+    href: '/manage/stock-in',
     icon: Download
   },
   {
     title: 'Stock Out',
-    href: '/depot/stock-out',
+    href: '/manage/stock-out',
     icon: Upload
   },
   {
     title: 'Check Stock',
-    href: '/depot/stock',
+    href: '/manage/stock',
     icon: Package
   }
 ];

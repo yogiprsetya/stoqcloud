@@ -65,7 +65,10 @@ export const CategoryCreateDialog = ({ isOpen, onClose, editing }: CategoryCreat
   };
 
   const handleClose = () => {
-    form.reset();
+    form.reset({
+      name: '',
+      description: ''
+    });
     onClose();
   };
 

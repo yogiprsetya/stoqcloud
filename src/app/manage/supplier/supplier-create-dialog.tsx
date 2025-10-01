@@ -69,7 +69,13 @@ export const SupplierCreateDialog = ({ isOpen, onClose, editing }: SupplierCreat
   };
 
   const handleClose = () => {
-    form.reset();
+    form.reset({
+      name: '',
+      contactPerson: '',
+      email: '',
+      phone: '',
+      address: ''
+    });
     onClose();
   };
 

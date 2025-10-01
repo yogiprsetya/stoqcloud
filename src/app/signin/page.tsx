@@ -13,13 +13,13 @@ const SigninForm = () => {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/depot';
+  const callbackUrl = searchParams.get('callbackUrl') || '/manage';
 
   useEffect(() => {
     // Check if user is already signed in
     getSession().then((session) => {
       if (session) {
-        router.push('/depot');
+        router.push('/manage');
       }
     });
   }, [router]);

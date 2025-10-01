@@ -55,8 +55,8 @@ export const SkuCreateDialog = ({ isOpen, onClose, editing }: CreateSkuModalProp
       form.reset({
         skuCode: editing.skuCode,
         name: editing.name,
-        categoryId: (editing as any).categoryId || (editing as any).category?.id || '',
-        supplierId: (editing as any).supplierId || (editing as any).supplier?.id || '',
+        categoryId: editing.category.id || '',
+        supplierId: editing.supplier.id || '',
         costPrice: Number(editing.costPrice),
         stock: editing.stock
       });
@@ -95,7 +95,14 @@ export const SkuCreateDialog = ({ isOpen, onClose, editing }: CreateSkuModalProp
   };
 
   const handleClose = () => {
-    form.reset();
+    form.reset({
+      skuCode: '',
+      name: '',
+      categoryId: '',
+      supplierId: '',
+      costPrice: 0,
+      stock: 0
+    });
     onClose();
   };
 
