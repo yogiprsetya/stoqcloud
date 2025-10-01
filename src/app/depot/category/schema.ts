@@ -16,8 +16,8 @@ export const categoryFormSchema = z.object({
     }),
   description: z
     .string()
-    .max(255, {
-      message: 'Description must be less than 255 characters'
+    .max(250, {
+      message: 'Description must be less than 250 characters'
     })
     .optional()
 });

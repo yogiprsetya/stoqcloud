@@ -66,12 +66,16 @@ export const SkuCreateDialog = ({ isOpen, onClose, editing }: CreateSkuModalProp
   const handleSubmit = async (data: FormData, intention: SubmitIntention = 'save') => {
     if (editing) {
       const { success } = await updateSku(data, editing.id);
-      if (success) handleClose();
+
+      if (success) {
+        handleClose();
+        form.reset();
+      }
     } else {
       const { success } = await createSku(data);
+
       if (success) {
         if (intention === 'save-and-create') {
-          form.reset();
           setTimeout(() => form.setFocus('skuCode'), 100);
         } else {
           handleClose();
