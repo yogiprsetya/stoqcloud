@@ -5,6 +5,11 @@ import { loadEnvConfig } from '@next/env';
 // Import all schemas
 import { users, usersRelations } from './schema/users';
 import { sku, skuRelations } from './schema/sku';
+import {
+  stockTransaction,
+  stockTransactionRelations,
+  stockTransactionTypeEnum
+} from './schema/stock-transaction';
 
 loadEnvConfig(process.cwd());
 
@@ -14,8 +19,11 @@ const db = drizzle(client, {
   schema: {
     users,
     sku,
+    stockTransaction,
+    stockTransactionTypeEnum,
     usersRelations,
-    skuRelations
+    skuRelations,
+    stockTransactionRelations
   }
 });
 

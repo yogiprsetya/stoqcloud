@@ -29,6 +29,20 @@
       "when": 1759044301988,
       "tag": "0003_military_zeigeist",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1759362584460,
+      "tag": "0004_easy_black_knight",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1759367149249,
+      "tag": "0005_slim_queen_noir",
+      "breakpoints": true
     }
   ]
 }

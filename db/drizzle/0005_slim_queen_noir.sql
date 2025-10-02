@@ -1,0 +1,2 @@
+CREATE TYPE "public"."stock_transaction_type" AS ENUM('IN', 'OUT');--> statement-breakpoint
+ALTER TABLE "stock_transaction" ALTER COLUMN "type" SET DATA TYPE "public"."stock_transaction_type" USING "type"::"public"."stock_transaction_type";

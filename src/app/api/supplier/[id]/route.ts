@@ -7,10 +7,7 @@ import { handleSuccessResponse } from '../../handle-success-res';
 import { handleDataNotFound, handleExpiredSession, handleInvalidRequest } from '../../handle-error-res';
 import { createUpdateSchema } from 'drizzle-zod';
 import { bodyParse } from '../../body-parse';
-
-type Params = {
-  params: Promise<{ id: string }>;
-};
+import { Params } from '../../params.type';
 
 export async function GET(req: NextRequest, context: Params) {
   const { id } = await context.params;

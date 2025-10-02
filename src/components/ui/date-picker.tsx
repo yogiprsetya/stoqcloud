@@ -43,7 +43,7 @@ export const DatePicker = forwardRef<HTMLButtonElement, DatePickerProps>(
               className
             )}
           >
-            <CalendarIcon className="mr-2 h-4 w-4" />
+            <CalendarIcon className="mr-2 size-4" />
             {value ? format(value, dateFormat) : <span>{placeholder}</span>}
           </Button>
         </PopoverTrigger>

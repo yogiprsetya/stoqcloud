@@ -7,10 +7,7 @@ import { bodyParse } from '~/app/api/body-parse';
 import { eq } from 'drizzle-orm';
 import { requireUserAuth } from '../../protect-route';
 import { createUpdateSchema } from 'drizzle-zod';
-
-type Params = {
-  params: Promise<{ id: string }>;
-};
+import { Params } from '../../params.type';
 
 export async function GET(req: NextRequest, context: Params) {
   const { id } = await context.params;

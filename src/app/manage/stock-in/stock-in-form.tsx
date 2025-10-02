@@ -1,9 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '~/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '~/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
@@ -11,79 +10,69 @@ import { Input } from '~/components/ui/input';
 import { Textarea } from '~/components/ui/textarea';
 import { Button } from '~/components/ui/button';
 import { Badge } from '~/components/ui/badge';
-import { Package, AlertCircle } from 'lucide-react';
+import { Package, AlertCircle, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription } from '~/components/ui/alert';
-import { DatePicker } from '~/components/ui/date-picker';
-
-const stockInSchema = z.object({
-  skuId: z.string().min(1, 'SKU harus dipilih'),
-  quantity: z.number().min(1, 'Quantity harus lebih dari 0'),
-  documentNumber: z.string().min(1, 'Nomor dokumen harus diisi'),
-  supplierId: z.string().min(1, 'Supplier harus dipilih'),
-  notes: z.string().optional(),
-  receivedDate: z.date({
-    message: 'Tanggal penerimaan harus diisi'
-  })
-});
-
-type StockInFormData = z.infer<typeof stockInSchema>;
+import { SelectSKU } from '../sku/schema';
+import { stockInFormSchema, StockInFormData } from './schema';
+import { useSku } from '~/app/manage/stock-in/use-sku';
+import { useSupplier } from '~/app/manage/stock-in/use-supplier';
+import { useStockInSubmit } from '~/app/manage/stock-in/use-stock-in';
 
 interface StockInFormProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
-// Mock data - nantinya akan diambil dari API
-const mockSkus = [
-  { id: '1', code: 'SKU001', name: 'Laptop Dell XPS 13', currentStock: 5 },
-  { id: '2', code: 'SKU002', name: 'Mouse Wireless Logitech', currentStock: 25 },
-  { id: '3', code: 'SKU003', name: 'Keyboard Mechanical', currentStock: 12 }
-];
+export function StockInForm({ isOpen, onClose, onSuccess }: StockInFormProps) {
+  const [selectedSku, setSelectedSku] = useState<SelectSKU | null>(null);
 
-const mockSuppliers = [
-  { id: '1', name: 'PT. Teknologi Indonesia' },
-  { id: '2', name: 'CV. Elektronik Jaya' },
-  { id: '3', name: 'UD. Komputer Mandiri' }
-];
-
-export function StockInForm({ isOpen, onClose }: StockInFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [selectedSku, setSelectedSku] = useState<unknown>(null);
+  // Hooks untuk data dan API calls
+  const { skus, loading: skusLoading, error: skusError } = useSku();
+  const { loading: suppliersLoading, error: suppliersError } = useSupplier();
+  const { submitStockIn, loading: submitting, error: submitError } = useStockInSubmit();
 
   const form = useForm<StockInFormData>({
-    resolver: zodResolver(stockInSchema),
+    resolver: zodResolver(stockInFormSchema),
     defaultValues: {
       skuId: '',
-      quantity: 0,
+      quantity: 1,
+      unitPrice: 0,
+      totalPrice: 0,
       documentNumber: '',
-      supplierId: '',
-      notes: '',
-      receivedDate: new Date()
+      notes: ''
     }
   });
 
+  // Watch quantity dan unitPrice untuk auto-calculate totalPrice
+  const quantity = form.watch('quantity');
+  const unitPrice = form.watch('unitPrice');
+
+  useEffect(() => {
+    const total = quantity * unitPrice;
+    form.setValue('totalPrice', total);
+  }, [quantity, unitPrice, form]);
+
   const onSubmit = async (data: StockInFormData) => {
-    setIsSubmitting(true);
     try {
-      // TODO: Implement API call
-      console.log('Stock In Data:', data);
+      await submitStockIn(data);
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Reset form and close dialog
+      // Reset form and close dialog on success
       form.reset();
+      setSelectedSku(null);
       onClose();
+
+      // Trigger refresh di parent component
+      onSuccess?.();
     } catch (error) {
+      // Error sudah di-handle di hook
       console.error('Error submitting stock in:', error);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   const handleSkuChange = (skuId: string) => {
-    const sku = mockSkus.find((s) => s.id === skuId);
-    setSelectedSku(sku);
+    const sku = skus.find((s) => s.id === skuId);
+    setSelectedSku(sku || null);
     form.setValue('skuId', skuId);
   };
 
@@ -92,10 +81,18 @@ export function StockInForm({ isOpen, onClose }: StockInFormProps) {
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Package className="h-5 w-5" />
-            Stock In Baru
+            <Package className="size-5" />
+            New Stock In
           </DialogTitle>
         </DialogHeader>
+
+        {/* Error Messages */}
+        {(skusError || suppliersError || submitError) && (
+          <Alert variant="destructive">
+            <AlertCircle className="size-4" />
+            <AlertDescription>{skusError || suppliersError || submitError}</AlertDescription>
+          </Alert>
+        )}
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -105,22 +102,24 @@ export function StockInForm({ isOpen, onClose }: StockInFormProps) {
               name="skuId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Pilih SKU</FormLabel>
-                  <Select onValueChange={handleSkuChange} value={field.value}>
+                  <FormLabel>Select SKU</FormLabel>
+                  <Select onValueChange={handleSkuChange} value={field.value} disabled={skusLoading}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Pilih SKU yang akan di-stock in" />
+                        <SelectValue
+                          placeholder={skusLoading ? 'Loading SKUs...' : 'Select SKU to stock in'}
+                        />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {mockSkus.map((sku) => (
+                      {skus.map((sku) => (
                         <SelectItem key={sku.id} value={sku.id}>
                           <div className="flex flex-col">
                             <span className="font-medium">
-                              {sku.code} - {sku.name}
+                              {sku.skuCode} - {sku.name}
                             </span>
                             <span className="text-sm text-muted-foreground">
-                              Stok saat ini: {sku.currentStock}
+                              Current stock: {sku.stock} | {sku.category?.name} | {sku.supplier?.name}
                             </span>
                           </div>
                         </SelectItem>
@@ -135,16 +134,18 @@ export function StockInForm({ isOpen, onClose }: StockInFormProps) {
             {/* Selected SKU Info */}
             {selectedSku && (
               <Alert>
-                <AlertCircle className="h-4 w-4" />
+                <AlertCircle className="size-4" />
                 <AlertDescription>
-                  <strong>{selectedSku.code}</strong> - {selectedSku.name}
+                  <strong>{selectedSku.skuCode}</strong> - {selectedSku.name}
                   <br />
-                  Stok saat ini: <Badge variant="outline">{selectedSku.currentStock}</Badge>
+                  Current stock: <Badge variant="outline">{selectedSku.stock}</Badge>
+                  <br />
+                  Category: {selectedSku.category?.name} | Supplier: {selectedSku.supplier?.name}
                 </AlertDescription>
               </Alert>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Quantity */}
               <FormField
                 control={form.control}
@@ -155,9 +156,10 @@ export function StockInForm({ isOpen, onClose }: StockInFormProps) {
                     <FormControl>
                       <Input
                         type="number"
-                        placeholder="Masukkan jumlah"
+                        placeholder="Enter quantity"
+                        min="1"
                         {...field}
-                        onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
+                        onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
                       />
                     </FormControl>
                     <FormMessage />
@@ -165,69 +167,58 @@ export function StockInForm({ isOpen, onClose }: StockInFormProps) {
                 )}
               />
 
-              {/* Received Date */}
+              {/* Unit Price */}
               <FormField
                 control={form.control}
-                name="receivedDate"
+                name="unitPrice"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Tanggal Penerimaan</FormLabel>
+                    <FormLabel>Unit Price</FormLabel>
                     <FormControl>
-                      <DatePicker
-                        value={field.value}
-                        onChange={field.onChange}
-                        placeholder="Pilih tanggal penerimaan"
-                        dateFormat="dd/MM/yyyy"
+                      <Input
+                        type="number"
+                        placeholder="0"
+                        min="0"
+                        step="0.01"
+                        {...field}
+                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
                       />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Document Number */}
+              {/* Total Price */}
               <FormField
                 control={form.control}
-                name="documentNumber"
+                name="totalPrice"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nomor Dokumen</FormLabel>
+                    <FormLabel>Total Price</FormLabel>
                     <FormControl>
-                      <Input placeholder="PO-2024-001, GRN-001, dll" {...field} />
+                      <Input type="number" placeholder="0" readOnly className="bg-muted" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-
-              {/* Supplier */}
-              <FormField
-                control={form.control}
-                name="supplierId"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Supplier</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Pilih supplier" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {mockSuppliers.map((supplier) => (
-                          <SelectItem key={supplier.id} value={supplier.id}>
-                            {supplier.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
+
+            {/* Document Number */}
+            <FormField
+              control={form.control}
+              name="documentNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Document Number (Optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="PO-2024-001, GRN-001, etc" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             {/* Notes */}
             <FormField
@@ -235,10 +226,10 @@ export function StockInForm({ isOpen, onClose }: StockInFormProps) {
               name="notes"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Catatan (Opsional)</FormLabel>
+                  <FormLabel>Notes (Optional)</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Tambahkan catatan jika diperlukan..."
+                      placeholder="Add notes if needed..."
                       className="resize-none"
                       rows={3}
                       {...field}
@@ -250,11 +241,18 @@ export function StockInForm({ isOpen, onClose }: StockInFormProps) {
             />
 
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={onClose}>
-                Batal
+              <Button type="button" variant="outline" onClick={onClose} disabled={submitting}>
+                Cancel
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Menyimpan...' : 'Simpan Stock In'}
+              <Button type="submit" disabled={submitting || skusLoading || suppliersLoading}>
+                {submitting ? (
+                  <>
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Stock In'
+                )}
               </Button>
             </DialogFooter>
           </form>
