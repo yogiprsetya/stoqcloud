@@ -8,7 +8,7 @@ import { mutate } from 'swr';
 
 type FormData = z.infer<typeof formSchema>;
 
-export const useSku = () => {
+export const useActionsSku = () => {
   const [isLoading, setLoading] = useState(false);
 
   const createSku = useCallback((payload: FormData) => {

@@ -16,7 +16,7 @@ import { SelectSKU } from '../sku/schema';
 import { stockInFormSchema, StockInFormData } from './schema';
 import { useSku } from '~/app/manage/stock-in/use-sku';
 import { useSupplier } from '~/app/manage/stock-in/use-supplier';
-import { useStockInSubmit } from '~/app/manage/stock-in/use-stock-in';
+import { useActionsStockIn } from '~/app/manage/stock-in/use-actions-stock-in';
 
 interface StockInFormProps {
   isOpen: boolean;
@@ -24,13 +24,15 @@ interface StockInFormProps {
   onSuccess?: () => void;
 }
 
+const MAX_ITEM_NAME = 44;
+
 export function StockInForm({ isOpen, onClose, onSuccess }: StockInFormProps) {
   const [selectedSku, setSelectedSku] = useState<SelectSKU | null>(null);
 
   // Hooks untuk data dan API calls
   const { skus, loading: skusLoading, error: skusError } = useSku();
   const { loading: suppliersLoading, error: suppliersError } = useSupplier();
-  const { submitStockIn, loading: submitting, error: submitError } = useStockInSubmit();
+  const { createStockIn, isLoading: submitting } = useActionsStockIn();
 
   const form = useForm<StockInFormData>({
     resolver: zodResolver(stockInFormSchema),
@@ -54,9 +56,9 @@ export function StockInForm({ isOpen, onClose, onSuccess }: StockInFormProps) {
   }, [quantity, unitPrice, form]);
 
   const onSubmit = async (data: StockInFormData) => {
-    try {
-      await submitStockIn(data);
+    const result = await createStockIn(data);
 
+    if (result?.success) {
       // Reset form and close dialog on success
       form.reset();
       setSelectedSku(null);
@@ -64,9 +66,6 @@ export function StockInForm({ isOpen, onClose, onSuccess }: StockInFormProps) {
 
       // Trigger refresh di parent component
       onSuccess?.();
-    } catch (error) {
-      // Error sudah di-handle di hook
-      console.error('Error submitting stock in:', error);
     }
   };
 
@@ -87,10 +86,10 @@ export function StockInForm({ isOpen, onClose, onSuccess }: StockInFormProps) {
         </DialogHeader>
 
         {/* Error Messages */}
-        {(skusError || suppliersError || submitError) && (
+        {(skusError || suppliersError) && (
           <Alert variant="destructive">
             <AlertCircle className="size-4" />
-            <AlertDescription>{skusError || suppliersError || submitError}</AlertDescription>
+            <AlertDescription>{skusError || suppliersError}</AlertDescription>
           </Alert>
         )}
 
@@ -111,13 +110,18 @@ export function StockInForm({ isOpen, onClose, onSuccess }: StockInFormProps) {
                         />
                       </SelectTrigger>
                     </FormControl>
+
                     <SelectContent>
                       {skus.map((sku) => (
                         <SelectItem key={sku.id} value={sku.id}>
                           <div className="flex flex-col">
                             <span className="font-medium">
-                              {sku.skuCode} - {sku.name}
+                              {sku.skuCode} -{' '}
+                              {sku.name.length > MAX_ITEM_NAME
+                                ? sku.name.slice(0, MAX_ITEM_NAME) + '...'
+                                : sku.name}
                             </span>
+
                             <span className="text-sm text-muted-foreground">
                               Current stock: {sku.stock} | {sku.category?.name} | {sku.supplier?.name}
                             </span>

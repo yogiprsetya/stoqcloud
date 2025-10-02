@@ -4,8 +4,8 @@ import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import type { SelectSKU } from './schema';
 import { Button } from '~/components/ui/button';
-import { Input } from '~/components/ui/input';
 import { useDebounce } from 'use-debounce';
+import { SearchField } from '~/components/common/search-field';
 
 const SkuTable = dynamic(() => import('./sku-table').then((m) => m.SkuTable), {
   ssr: false
@@ -54,7 +54,8 @@ export default function DepotSkuPage() {
         <h1 className="text-xl font-semibold">SKU Manager</h1>
 
         <div className="flex gap-2">
-          <Input placeholder="Search ..." value={q} onChange={(e) => setQ(e.target.value)} />
+          <SearchField value={q} onChange={(value) => setQ(value)} placeholder="Search ..." />
+
           <Button onClick={handleOpenModal}>Add SKU</Button>
         </div>
       </div>

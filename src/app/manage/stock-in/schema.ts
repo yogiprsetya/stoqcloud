@@ -2,7 +2,27 @@ import { InferSelectModel } from 'drizzle-orm';
 import { stockTransaction } from '~/db/schema/stock-transaction';
 import { z } from 'zod';
 
-export type SelectStockTransaction = InferSelectModel<typeof stockTransaction>;
+export type SelectStockTransaction = Omit<
+  InferSelectModel<typeof stockTransaction>,
+  'createdBy' | 'skuId' | 'supplierId' | 'categoryId'
+> & {
+  createdBy: {
+    id: string;
+    name: string;
+  };
+  sku: {
+    skuCode: string;
+    name: string;
+  };
+  supplier: {
+    id: string;
+    name: string;
+  };
+  category: {
+    id: string;
+    name: string;
+  };
+};
 
 // Schema for stock-in form that matches the API
 export const stockInFormSchema = z.object({

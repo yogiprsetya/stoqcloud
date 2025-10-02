@@ -23,7 +23,7 @@ export const useFetchSku = (params?: Params, opt?: Options) => {
   if (sort) search.set('sort', sort);
   if (sortBy) search.set('sortBy', sortBy);
 
-  const key = opt?.disabled ? null : `sku${search.toString() ? `?${search.toString()}` : ''}`;
+  const key = opt?.disabled ? null : `sku${search.toString()}`;
 
   const { data, error, isLoading, mutate } = useSWR<HttpResponse<SelectSKU[]>>(key);
 

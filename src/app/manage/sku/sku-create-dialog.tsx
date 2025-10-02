@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
 import { Barcode } from 'lucide-react';
 import { formSchema, type SelectSKU } from './schema';
-import { useSku } from './use-sku';
+import { useActionsSku } from './use-actions-sku';
 import { useFetchCategory } from '../category/use-fetch-category';
 import { useFetchSupplier } from '../supplier/use-fetch-supplier';
 import { If } from '~/components/ui/if';
@@ -28,7 +28,7 @@ interface CreateSkuModalProps {
 type SubmitIntention = 'save' | 'save-and-create';
 
 export const SkuCreateDialog = ({ isOpen, onClose, editing }: CreateSkuModalProps) => {
-  const { isLoading, createSku, updateSku } = useSku();
+  const { isLoading, createSku, updateSku } = useActionsSku();
   const { categories } = useFetchCategory({ disabled: !isOpen });
   const { suppliers } = useFetchSupplier({ disabled: !isOpen });
   const [submitIntention, setSubmitIntention] = useState<SubmitIntention>('save');

@@ -4,6 +4,7 @@ import { stockTransaction } from '~/db/schema/stock-transaction';
 import { sku } from '~/db/schema/sku';
 import { category } from '~/db/schema/category';
 import { supplier } from '~/db/schema/supplier';
+import { users } from '~/db/schema/users';
 import { createUpdateSchema } from 'drizzle-zod';
 import { handleExpiredSession, handleInvalidRequest } from '~/app/api/handle-error-res';
 import { handleSuccessResponse } from '~/app/api/handle-success-res';
@@ -28,17 +29,20 @@ export async function GET(req: NextRequest, context: Params) {
           totalPrice: stockTransaction.totalPrice,
           documentNumber: stockTransaction.documentNumber,
           notes: stockTransaction.notes,
+          createdBy: stockTransaction.createdBy,
           createdAt: stockTransaction.createdAt,
           updatedAt: stockTransaction.updatedAt,
           skuCode: sku.skuCode,
           skuName: sku.name,
           categoryName: category.name,
-          supplierName: supplier.name
+          supplierName: supplier.name,
+          createdByName: users.name
         })
         .from(stockTransaction)
         .innerJoin(sku, eq(stockTransaction.skuId, sku.id))
         .leftJoin(category, eq(sku.categoryId, category.id))
         .leftJoin(supplier, eq(sku.supplierId, supplier.id))
+        .leftJoin(users, eq(stockTransaction.createdBy, users.id))
         .where(eq(stockTransaction.id, id))
         .limit(1);
 
@@ -46,7 +50,7 @@ export async function GET(req: NextRequest, context: Params) {
         return handleInvalidRequest('Stock transaction not found');
       }
 
-      const { skuCode, skuName, categoryName, supplierName, ...transactionData } = result[0];
+      const { skuCode, skuName, categoryName, supplierName, createdByName, ...transactionData } = result[0];
 
       const transaction = {
         ...transactionData,
@@ -56,7 +60,13 @@ export async function GET(req: NextRequest, context: Params) {
           name: skuName,
           categoryName,
           supplierName
-        }
+        },
+        createdByUser: transactionData.createdBy
+          ? {
+              id: transactionData.createdBy,
+              name: createdByName
+            }
+          : null
       };
 
       return handleSuccessResponse(transaction);

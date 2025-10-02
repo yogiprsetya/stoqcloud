@@ -9,7 +9,7 @@ import {
   AlertDialogTitle
 } from '~/components/ui/alert-dialog';
 import type { SelectSKU } from './schema';
-import { useSku } from './use-sku';
+import { useActionsSku } from './use-actions-sku';
 
 interface SkuDeleteDialogProps {
   isOpen: boolean;
@@ -18,7 +18,7 @@ interface SkuDeleteDialogProps {
 }
 
 export const SkuDeleteDialog = ({ isOpen, onClose, sku }: SkuDeleteDialogProps) => {
-  const { deleteSku, isLoading } = useSku();
+  const { deleteSku, isLoading } = useActionsSku();
 
   const handleDelete = async () => {
     if (!sku) return;

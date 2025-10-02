@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 import { Button } from '~/components/ui/button';
-import { Input } from '~/components/ui/input';
 import { Card, CardContent } from '~/components/ui/card';
 import { Badge } from '~/components/ui/badge';
-import { Plus, Search, Edit, Trash2, Mail, Phone, MapPin, User } from 'lucide-react';
+import { Plus, Edit, Trash2, Mail, Phone, MapPin, User } from 'lucide-react';
 import { useFetchSupplier } from './use-fetch-supplier';
 import { type SelectSupplier } from './schema';
 import dynamic from 'next/dynamic';
+import { SearchField } from '~/components/common/search-field';
 
 const SupplierCreateDialog = dynamic(
   () => import('./supplier-create-dialog').then((m) => m.SupplierCreateDialog),
@@ -38,19 +38,14 @@ export default function SupplierPage() {
         </div>
 
         <div className="flex gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground size-4" />
-
-            <Input
-              placeholder="Search suppliers..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+          <SearchField
+            value={searchTerm}
+            onChange={(value) => setSearchTerm(value)}
+            placeholder="Search suppliers..."
+          />
 
           <Button onClick={() => setIsCreateDialogOpen(true)}>
-            <Plus className="size-4 mr-2" />
+            <Plus />
             Add Supplier
           </Button>
         </div>

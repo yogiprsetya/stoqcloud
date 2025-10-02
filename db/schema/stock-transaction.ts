@@ -1,6 +1,7 @@
 import { pgTable, uuid, varchar, integer, decimal, timestamp, text, pgEnum } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { sku } from './sku';
+import { users } from './users';
 
 export const stockTransactionTypeEnum = pgEnum('stock_transaction_type', ['IN', 'OUT']);
 
@@ -15,6 +16,7 @@ export const stockTransaction = pgTable('stock_transaction', {
   totalPrice: decimal('total_price', { precision: 12, scale: 2 }).notNull().default('0'),
   documentNumber: varchar('document_number', { length: 100 }), // PO Number, SO Number, etc
   notes: text('notes'),
+  createdBy: text('created_by').references(() => users.id, { onDelete: 'set null' }),
   createdAt: timestamp('created_at', { withTimezone: false }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: false }).notNull().defaultNow()
 });
@@ -23,5 +25,9 @@ export const stockTransactionRelations = relations(stockTransaction, ({ one }) =
   sku: one(sku, {
     fields: [stockTransaction.skuId],
     references: [sku.id]
+  }),
+  createdByUser: one(users, {
+    fields: [stockTransaction.createdBy],
+    references: [users.id]
   })
 }));

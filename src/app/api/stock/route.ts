@@ -4,6 +4,7 @@ import { stockTransaction, stockTransactionTypeEnum } from '~/db/schema/stock-tr
 import { sku } from '~/db/schema/sku';
 import { category } from '~/db/schema/category';
 import { supplier } from '~/db/schema/supplier';
+import { users } from '~/db/schema/users';
 import { createInsertSchema } from 'drizzle-zod';
 import { handleExpiredSession, handleInvalidRequest } from '~/app/api/handle-error-res';
 import { handleSuccessResponse } from '~/app/api/handle-success-res';
@@ -62,18 +63,24 @@ export async function GET(req: NextRequest) {
             totalPrice: stockTransaction.totalPrice,
             documentNumber: stockTransaction.documentNumber,
             notes: stockTransaction.notes,
+            createdBy: stockTransaction.createdBy,
             createdAt: stockTransaction.createdAt,
             updatedAt: stockTransaction.updatedAt,
             // Only essential SKU info
             skuCode: sku.skuCode,
             skuName: sku.name,
+            categoryId: sku.categoryId,
+            supplierId: sku.supplierId,
             categoryName: category.name,
-            supplierName: supplier.name
+            supplierName: supplier.name,
+            // Creator info
+            createdByName: users.name
           })
           .from(stockTransaction)
           .innerJoin(sku, eq(stockTransaction.skuId, sku.id))
           .leftJoin(category, eq(sku.categoryId, category.id))
           .leftJoin(supplier, eq(sku.supplierId, supplier.id))
+          .leftJoin(users, eq(stockTransaction.createdBy, users.id))
           .where(queryFilter)
           .orderBy(sortedBy)
           .offset(offset)
@@ -102,10 +109,22 @@ export async function GET(req: NextRequest) {
         sku: {
           id: t.skuId,
           skuCode: t.skuCode,
-          name: t.skuName,
-          categoryName: t.categoryName,
-          supplierName: t.supplierName
-        }
+          name: t.skuName
+        },
+        supplier: {
+          id: t.supplierId,
+          name: t.supplierName
+        },
+        category: {
+          id: t.categoryId,
+          name: t.categoryName
+        },
+        createdBy: t.createdBy
+          ? {
+              id: t.createdBy,
+              name: t.createdByName
+            }
+          : null
       }));
 
       return handleSuccessResponse(transformedTransactions, meta);
@@ -123,7 +142,7 @@ const stockInSchema = createInsertSchema(stockTransaction, {
   totalPrice: z.number().min(0, 'Total price cannot be negative'),
   documentNumber: z.string().optional(),
   notes: z.string().optional()
-}).omit({ id: true, createdAt: true, updatedAt: true });
+}).omit({ id: true, createdBy: true, createdAt: true, updatedAt: true });
 
 export async function POST(req: NextRequest) {
   const body = await bodyParse(req);
@@ -144,6 +163,7 @@ export async function POST(req: NextRequest) {
             .values({
               ...data,
               type: 'IN',
+              createdBy: session.user.id,
               unitPrice: data.unitPrice.toString(),
               totalPrice: data.totalPrice.toString()
             })

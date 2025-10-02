@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
-import { Card, CardContent } from '~/components/ui/card';
 import {
   Eye,
   FileText,
@@ -13,7 +12,8 @@ import {
   MoreHorizontal,
   Download,
   Loader2,
-  AlertCircle
+  AlertCircle,
+  Filter
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -24,8 +24,11 @@ import {
 import { Alert, AlertDescription } from '~/components/ui/alert';
 import dynamic from 'next/dynamic';
 import { DataTable } from '~/components/common/data-table';
-import { useStockInList, StockInTransaction } from '~/app/manage/stock-in/use-stock-in';
+import { useFetchStockIn } from '~/app/manage/stock-in/use-fetch-stock-in';
 import { formatDate } from '~/utils/date';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import { SelectStockTransaction } from './schema';
+import { SearchField } from '~/components/common/search-field';
 
 const StockInDetail = dynamic(
   () => import('./stock-in-detail').then((mod) => ({ default: mod.StockInDetail })),
@@ -36,32 +39,12 @@ const StockInDetail = dynamic(
 
 const MAX_NAME_LENGTH = 30;
 
-interface StockInHistoryProps {
-  searchTerm: string;
-  onRefresh?: () => void;
-}
-
-export function StockInHistory({ searchTerm, onRefresh }: StockInHistoryProps) {
-  const [currentPage, setCurrentPage] = useState(1);
+export const StockInHistory = () => {
   const [detailId, setDetailId] = useState<string | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   // Gunakan hook untuk mengambil data dari API
-  const { transactions, loading, error, meta, refetch } = useStockInList({
-    keyword: searchTerm || undefined,
-    page: currentPage,
-    sort: 'desc',
-    sortBy: 'createdAt'
-  });
-
-  // Filter data berdasarkan search term (client-side filtering sebagai backup)
-  const filteredData = transactions.filter(
-    (item) =>
-      item.sku.skuCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.sku.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (item.documentNumber && item.documentNumber.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (item.sku.supplierName && item.sku.supplierName.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const { transactions, isLoading, error, meta, setPage, setKeyword, keyword } = useFetchStockIn();
 
   const handleViewDetails = (id: string) => {
     setDetailId(id);
@@ -78,17 +61,12 @@ export function StockInHistory({ searchTerm, onRefresh }: StockInHistoryProps) {
     console.log('Download document for:', id);
   };
 
-  const handleRefresh = () => {
-    refetch();
-    onRefresh?.();
-  };
-
   const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+    setPage(page);
   };
 
   // Definisi kolom untuk DataTable
-  const columns: ColumnDef<StockInTransaction>[] = [
+  const columns: ColumnDef<SelectStockTransaction>[] = [
     {
       accessorKey: 'createdAt',
       header: 'Tanggal',
@@ -117,7 +95,7 @@ export function StockInHistory({ searchTerm, onRefresh }: StockInHistoryProps) {
       accessorKey: 'quantity',
       header: 'Quantity',
       cell: ({ row }) => (
-        <Badge variant="outline" className="font-mono">
+        <Badge variant="outline" size="sm">
           +{row.original.quantity}
         </Badge>
       )
@@ -133,7 +111,7 @@ export function StockInHistory({ searchTerm, onRefresh }: StockInHistoryProps) {
       )
     },
     {
-      accessorKey: 'sku.supplierName',
+      accessorKey: 'supplier.name',
       header: 'Supplier'
     },
     {
@@ -144,9 +122,9 @@ export function StockInHistory({ searchTerm, onRefresh }: StockInHistoryProps) {
       )
     },
     {
-      accessorKey: 'receivedBy',
-      header: 'Diterima Oleh',
-      cell: () => <span className="text-sm">-</span>
+      accessorKey: 'createdBy.name',
+      header: 'Created By',
+      cell: ({ row }) => row.original.createdBy?.name || '-'
     },
     {
       id: 'actions',
@@ -161,12 +139,12 @@ export function StockInHistory({ searchTerm, onRefresh }: StockInHistoryProps) {
 
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => handleViewDetails(row.original.id)}>
-              <Eye className="size-4 mr-2" />
+              <Eye />
               Lihat Detail
             </DropdownMenuItem>
 
             <DropdownMenuItem onClick={() => handleDownloadDocument(row.original.id)}>
-              <Download className="size-4 mr-2" />
+              <Download />
               Download Dokumen
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -176,7 +154,7 @@ export function StockInHistory({ searchTerm, onRefresh }: StockInHistoryProps) {
   ];
 
   // Show loading state
-  if (loading) {
+  if (isLoading) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
@@ -195,9 +173,10 @@ export function StockInHistory({ searchTerm, onRefresh }: StockInHistoryProps) {
         <CardContent className="py-6">
           <Alert variant="destructive">
             <AlertCircle className="size-4" />
+
             <AlertDescription>
               <strong>Error:</strong> {error}
-              <Button variant="outline" size="sm" className="ml-4" onClick={handleRefresh}>
+              <Button variant="outline" size="sm" className="ml-4">
                 Coba Lagi
               </Button>
             </AlertDescription>
@@ -207,14 +186,14 @@ export function StockInHistory({ searchTerm, onRefresh }: StockInHistoryProps) {
     );
   }
 
-  if (filteredData.length === 0) {
+  if (!transactions || transactions.length === 0) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
           <Package className="size-12 text-muted-foreground mb-4" />
           <h3 className="text-lg font-semibold mb-2">No stock in data</h3>
           <p className="text-muted-foreground text-center">
-            {searchTerm
+            {keyword
               ? 'No data matches your search.'
               : 'No stock in history yet. Start by adding a new stock in.'}
           </p>
@@ -224,61 +203,78 @@ export function StockInHistory({ searchTerm, onRefresh }: StockInHistoryProps) {
   }
 
   return (
-    <div className="space-y-4">
-      {/* Summary */}
-      <div className="flex items-center justify-between text-sm text-muted-foreground">
-        <span>
-          Menampilkan {filteredData.length} dari {meta?.totalCount || 0} data
-          {meta && ` (Halaman ${meta.currentPage} dari ${meta.totalPages})`}
-        </span>
-
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handleRefresh}>
-            <Download className="size-4 mr-2" />
-            Refresh
-          </Button>
-
-          <Button variant="outline" size="sm">
-            <Download className="size-4 mr-2" />
-            Export Data
-          </Button>
-        </div>
-      </div>
-
-      {/* Data Table */}
-      <DataTable columns={columns} data={filteredData} />
-
-      {/* Pagination */}
-      {meta && meta.totalPages > 1 && (
+    <Card>
+      <CardHeader>
         <div className="flex items-center justify-between">
-          <div className="text-sm text-muted-foreground">
-            Halaman {meta.currentPage} dari {meta.totalPages}
-          </div>
+          <CardTitle>Stock In History</CardTitle>
 
           <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={meta.currentPage <= 1}
-              onClick={() => handlePageChange(meta.currentPage - 1)}
-            >
-              Previous
-            </Button>
+            <SearchField
+              value={keyword}
+              onChange={(value) => setKeyword(value)}
+              placeholder="Search by SKU, supplier, or document..."
+            />
 
-            <Button
-              variant="outline"
-              size="sm"
-              disabled={meta.currentPage >= meta.totalPages}
-              onClick={() => handlePageChange(meta.currentPage + 1)}
-            >
-              Next
+            <Button variant="outline" size="sm">
+              <Filter />
+              Filter
             </Button>
           </div>
         </div>
-      )}
+      </CardHeader>
 
-      {/* Detail Dialog */}
-      <StockInDetail isOpen={isDetailOpen} onClose={handleCloseDetail} transactionId={detailId} />
-    </div>
+      <CardContent>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between text-sm text-muted-foreground">
+            <span>
+              Menampilkan {transactions?.length || 0} dari {meta?.totalCount || 0} data
+              {meta && ` (Halaman ${meta.currentPage} dari ${meta.totalPages})`}
+            </span>
+
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm">
+                <Download />
+                Export Data
+              </Button>
+            </div>
+          </div>
+
+          {/* Data Table */}
+          <DataTable columns={columns} data={transactions || []} />
+
+          {/* Pagination */}
+          {meta && meta.totalPages > 1 && (
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">
+                Halaman {meta.currentPage} dari {meta.totalPages}
+              </div>
+
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={meta.currentPage <= 1}
+                  onClick={() => handlePageChange(meta.currentPage - 1)}
+                >
+                  Previous
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={meta.currentPage >= meta.totalPages}
+                  onClick={() => handlePageChange(meta.currentPage + 1)}
+                >
+                  Next
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {/* Detail Dialog */}
+          <StockInDetail isOpen={isDetailOpen} onClose={handleCloseDetail} transactionId={detailId} />
+        </div>
+      </CardContent>
+    </Card>
   );
-}
+};

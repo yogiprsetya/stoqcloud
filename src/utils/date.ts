@@ -1,4 +1,4 @@
-export const formatDate = (dateString: string) => {
+export const formatDate = (dateString: string | Date) => {
   return new Date(dateString).toLocaleDateString('id-ID', {
     day: '2-digit',
     month: '2-digit',
@@ -6,7 +6,7 @@ export const formatDate = (dateString: string) => {
   });
 };
 
-export const formatDetailDate = (dateString: string) => {
+export const formatDetailDate = (dateString: string | Date) => {
   return new Date(dateString).toLocaleDateString('id-ID', {
     day: '2-digit',
     month: 'long',
