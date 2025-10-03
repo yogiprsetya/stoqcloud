@@ -6,6 +6,7 @@ import { Button } from '~/components/ui/button';
 import { formatRp } from '~/utils/rupiah';
 import { Pencil, Trash } from 'lucide-react';
 import { SearchField } from '~/components/common/search-field';
+import { Pagination } from '~/components/common/pagination';
 
 const MAX_NAME_LENGTH = 30;
 
@@ -94,14 +95,7 @@ const createColumns = (
 export const SkuTable = ({ onEdit, onDelete, handleOpenModal }: SkuTableProps) => {
   const { skus, meta, isLoading, setPage, setKeyword, keyword } = useFetchSku();
 
-  if (isLoading) {
-    return <div>Loading SKU data...</div>;
-  }
-
   const columns = createColumns(onEdit, onDelete);
-
-  const canPrev = (meta?.currentPage ?? 1) > 1;
-  const canNext = (meta?.currentPage ?? 1) < (meta?.totalPages ?? 1);
 
   return (
     <div className="space-y-3">
@@ -112,31 +106,9 @@ export const SkuTable = ({ onEdit, onDelete, handleOpenModal }: SkuTableProps) =
         </div>
       </div>
 
-      <DataTable columns={columns} data={skus ?? []} />
+      <DataTable columns={columns} isLoading={isLoading} data={skus ?? []} />
 
-      <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
-          Halaman {meta?.currentPage ?? 1} dari {meta?.totalPages ?? 1} • Total {meta?.totalCount ?? 0}
-        </div>
-
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            disabled={!canPrev}
-            onClick={() => canPrev && setPage(meta!.currentPage - 1)}
-          >
-            Prev
-          </Button>
-
-          <Button
-            variant="outline"
-            disabled={!canNext}
-            onClick={() => canNext && setPage(meta!.currentPage + 1)}
-          >
-            Next
-          </Button>
-        </div>
-      </div>
+      <Pagination meta={meta} onPageChange={setPage} showInfo />
     </div>
   );
 };

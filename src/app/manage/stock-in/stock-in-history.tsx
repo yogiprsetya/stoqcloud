@@ -4,24 +4,14 @@ import { useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
-import {
-  Eye,
-  FileText,
-  Calendar,
-  Package,
-  MoreHorizontal,
-  Download,
-  Loader2,
-  AlertCircle,
-  Filter
-} from 'lucide-react';
+import { Eye, FileText, Calendar, MoreHorizontal, Download, Filter } from 'lucide-react';
+import { Pagination } from '~/components/common/pagination';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger
 } from '~/components/ui/dropdown-menu';
-import { Alert, AlertDescription } from '~/components/ui/alert';
 import dynamic from 'next/dynamic';
 import { DataTable } from '~/components/common/data-table';
 import { useFetchStockIn } from '~/app/manage/stock-in/use-fetch-stock-in';
@@ -43,8 +33,7 @@ export const StockInHistory = () => {
   const [detailId, setDetailId] = useState<string | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-  // Gunakan hook untuk mengambil data dari API
-  const { transactions, isLoading, error, meta, setPage, setKeyword, keyword } = useFetchStockIn();
+  const { transactions, meta, setPage, setKeyword, keyword, isLoading } = useFetchStockIn();
 
   const handleViewDetails = (id: string) => {
     setDetailId(id);
@@ -153,55 +142,6 @@ export const StockInHistory = () => {
     }
   ];
 
-  // Show loading state
-  if (isLoading) {
-    return (
-      <Card>
-        <CardContent className="flex flex-col items-center justify-center py-12">
-          <Loader2 className="size-8 animate-spin text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold">Memuat data...</h3>
-          <p className="text-muted-foreground text-center">Sedang mengambil data stock in dari server.</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  // Show error state
-  if (error) {
-    return (
-      <Card>
-        <CardContent className="py-6">
-          <Alert variant="destructive">
-            <AlertCircle className="size-4" />
-
-            <AlertDescription>
-              <strong>Error:</strong> {error}
-              <Button variant="outline" size="sm" className="ml-4">
-                Coba Lagi
-              </Button>
-            </AlertDescription>
-          </Alert>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (!transactions || transactions.length === 0) {
-    return (
-      <Card>
-        <CardContent className="flex flex-col items-center justify-center py-12">
-          <Package className="size-12 text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">No stock in data</h3>
-          <p className="text-muted-foreground text-center">
-            {keyword
-              ? 'No data matches your search.'
-              : 'No stock in history yet. Start by adding a new stock in.'}
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
   return (
     <Card>
       <CardHeader>
@@ -239,37 +179,9 @@ export const StockInHistory = () => {
             </div>
           </div>
 
-          {/* Data Table */}
-          <DataTable columns={columns} data={transactions || []} />
+          <DataTable columns={columns} isLoading={isLoading} data={transactions || []} />
 
-          {/* Pagination */}
-          {meta && meta.totalPages > 1 && (
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-muted-foreground">
-                Halaman {meta.currentPage} dari {meta.totalPages}
-              </div>
-
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={meta.currentPage <= 1}
-                  onClick={() => handlePageChange(meta.currentPage - 1)}
-                >
-                  Previous
-                </Button>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={meta.currentPage >= meta.totalPages}
-                  onClick={() => handlePageChange(meta.currentPage + 1)}
-                >
-                  Next
-                </Button>
-              </div>
-            </div>
-          )}
+          <Pagination meta={meta} onPageChange={handlePageChange} showInfo={false} />
 
           {/* Detail Dialog */}
           <StockInDetail isOpen={isDetailOpen} onClose={handleCloseDetail} transactionId={detailId} />
