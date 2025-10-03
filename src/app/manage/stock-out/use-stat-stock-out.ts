@@ -1,9 +1,8 @@
 import useSWR from 'swr';
-import { SelectStockTransaction } from '~/app/manage/stock-in/schema';
+import { SelectStockTransaction } from '~/app/manage/stock-out/schema';
 import { httpClient } from '~/config/http-client';
 
-// Hook untuk mengambil statistik stock-in
-interface StockInStats {
+interface StockOutStats {
   todayItems: number;
   todayValue: number;
   pendingItems: number;
@@ -11,17 +10,17 @@ interface StockInStats {
 }
 
 // Custom fetcher untuk statistik
-const statsFetcher = async (): Promise<StockInStats> => {
+const statsFetcher = async (): Promise<StockOutStats> => {
   const today = new Date();
   const startOfDay = new Date(today.setHours(0, 0, 0, 0)).toISOString();
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString();
 
   // Fetch data untuk hari ini
-  const todayResponse = await httpClient.get(`stock-in?startDate=${startOfDay}`);
+  const todayResponse = await httpClient.get(`stock-out?startDate=${startOfDay}`);
   const todayResult = todayResponse.data;
 
   // Fetch data untuk bulan ini
-  const monthResponse = await httpClient.get(`stock-in?startDate=${startOfMonth}`);
+  const monthResponse = await httpClient.get(`stock-out?startDate=${startOfMonth}`);
   const monthResult = await monthResponse.data;
 
   if (!todayResult.success || !monthResult.success) {
@@ -47,13 +46,13 @@ const statsFetcher = async (): Promise<StockInStats> => {
   return {
     todayItems,
     todayValue,
-    pendingItems: 0, // Tidak ada pending untuk stock-in yang sudah tersimpan
+    pendingItems: 0, // Tidak ada pending untuk stock-out yang sudah tersimpan
     monthlyItems
   };
 };
 
-export const useStatStockIn = () => {
-  const { data, error, isLoading, mutate } = useSWR<StockInStats>('stock-in-stats', statsFetcher);
+export const useStatStockOut = () => {
+  const { data, error, isLoading, mutate } = useSWR<StockOutStats>('stock-out-stats', statsFetcher);
 
   return {
     stats: data || null,

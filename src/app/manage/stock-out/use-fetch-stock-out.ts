@@ -1,13 +1,13 @@
 import useSWR from 'swr';
 import { HttpResponse } from '~/types/Response';
-import { SelectStockTransaction } from '~/app/manage/stock-in/schema';
+import { SelectStockTransaction } from '~/app/manage/stock-out/schema';
 import { useState } from 'react';
 
 type Options = {
   disabled?: boolean;
 };
 
-export const useFetchStockIn = (opt?: Options) => {
+export const useFetchStockOut = (opt?: Options) => {
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState<'asc' | 'desc' | null>(null);
   const [keyword, setKeyword] = useState<string>('');
@@ -20,7 +20,7 @@ export const useFetchStockIn = (opt?: Options) => {
   if (sort) search.set('sort', sort);
   if (sortBy) search.set('sortBy', sortBy);
 
-  const key = opt?.disabled ? null : `stock-in?${search.toString()}`;
+  const key = opt?.disabled ? null : `stock-out?${search.toString()}`;
 
   const { data, error, isLoading, mutate } = useSWR<HttpResponse<SelectStockTransaction[]>>(key);
 

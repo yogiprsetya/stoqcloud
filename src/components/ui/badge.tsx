@@ -13,10 +13,7 @@ const badgeVariants = cva(
         outline: 'text-foreground border-border hover:bg-accent hover:text-accent-foreground',
         success: 'border-transparent bg-green-500 text-white hover:bg-green-600',
         warning: 'border-transparent bg-yellow-500 text-white hover:bg-yellow-600',
-        info: 'border-transparent bg-blue-500 text-white hover:bg-blue-600',
-        subtle: 'border-transparent bg-muted text-muted-foreground',
-        miro: 'border-transparent bg-gradient-to-r from-blue-500 to-purple-600 text-white',
-        playful: 'border-transparent bg-gradient-to-r from-pink-500 to-orange-500 text-white'
+        info: 'border-transparent bg-blue-500 text-white hover:bg-blue-600'
       },
       size: {
         default: 'px-3 py-1 text-xs',

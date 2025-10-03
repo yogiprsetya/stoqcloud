@@ -4,17 +4,17 @@ import { useState } from 'react';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Badge } from '~/components/ui/badge';
-import { Download, BookPlus } from 'lucide-react';
-import { StockInForm } from './stock-in-form';
-import { StockInHistory } from './stock-in-history';
-import { useStatStockIn } from '~/app/manage/stock-in/use-stat-stock-in';
+import { BookUp2, Upload } from 'lucide-react';
+import { StockOutForm } from './stock-out-form';
+import { StockOutHistory } from './stock-out-history';
+import { useStatStockOut } from '~/app/manage/stock-out/use-stat-stock-out';
 import { formatRp } from '~/utils/rupiah';
 
-export default function StockInPage() {
+export default function StockOutPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   // Hook untuk statistik
-  const { stats, loading: statsLoading, mutate: refetchStats } = useStatStockIn();
+  const { stats, loading: statsLoading, mutate: refetchStats } = useStatStockOut();
 
   const handleRefresh = () => {
     refetchStats(); // Refresh statistik juga
@@ -22,80 +22,83 @@ export default function StockInPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-2">
-            <span>Stock</span> <Badge variant="success">IN</Badge>
+            <span>Stock</span>
+            <Badge variant="destructive">OUT</Badge>
           </h1>
-
-          <p className="text-muted-foreground">Manage incoming goods to warehouse</p>
+          <p className="text-muted-foreground">Manage outgoing goods from warehouse</p>
         </div>
 
         <div className="flex gap-2">
           <Button variant="outline">
-            <Download />
+            <Upload />
             Export
           </Button>
 
           <Button onClick={() => setIsFormOpen(true)}>
-            <BookPlus />
-            Stock In
+            <BookUp2 />
+            Stock Out
           </Button>
         </div>
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-sm font-medium">Total Items Today</CardTitle>
+            <CardTitle className="text-sm font-medium">Today Items</CardTitle>
           </CardHeader>
 
           <CardContent>
             <div className="text-2xl font-bold">{statsLoading ? '...' : stats?.todayItems || 0}</div>
-            <p className="text-xs text-muted-foreground">Items received today</p>
+            <p className="text-xs text-muted-foreground">Items out today</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-sm font-medium">Total Value</CardTitle>
+            <CardTitle className="text-sm font-medium">Today Value</CardTitle>
           </CardHeader>
 
           <CardContent>
             <div className="text-2xl font-bold">
               {statsLoading ? '...' : formatRp(stats?.todayValue || 0)}
             </div>
-            <p className="text-xs text-muted-foreground">Total value received</p>
+            <p className="text-xs text-muted-foreground">Total value today</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-sm font-medium">Pending Items</CardTitle>
-          </CardHeader>
-
-          <CardContent>
-            <div className="text-2xl font-bold">{statsLoading ? '...' : stats?.pendingItems || 0}</div>
-            <p className="text-xs text-muted-foreground">Awaiting confirmation</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-sm font-medium">This Month</CardTitle>
+            <CardTitle className="text-sm font-medium">Monthly Items</CardTitle>
           </CardHeader>
 
           <CardContent>
             <div className="text-2xl font-bold">{statsLoading ? '...' : stats?.monthlyItems || 0}</div>
-            <p className="text-xs text-muted-foreground">Total this month</p>
+            <p className="text-xs text-muted-foreground">Items this month</p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <CardTitle className="text-sm font-medium">Pending</CardTitle>
+          </CardHeader>
+
+          <CardContent>
+            <div className="text-2xl font-bold">{statsLoading ? '...' : stats?.pendingItems || 0}</div>
+            <p className="text-xs text-muted-foreground">Pending transactions</p>
           </CardContent>
         </Card>
       </div>
 
-      <StockInHistory />
+      {/* History Section */}
+      <StockOutHistory />
 
-      <StockInForm isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} onSuccess={handleRefresh} />
+      {/* Form Dialog */}
+      <StockOutForm isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} onSuccess={handleRefresh} />
     </div>
   );
 }

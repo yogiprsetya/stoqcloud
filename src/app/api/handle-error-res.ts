@@ -35,7 +35,7 @@ export const handleExpiredSession = () => {
       success: false,
       message: 'For any security reason, session has expired, please re-signin!'
     },
-    { status: 440 }
+    { status: 401 }
   );
 };
 

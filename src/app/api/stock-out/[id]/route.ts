@@ -6,10 +6,10 @@ import { category } from '~/db/schema/category';
 import { supplier } from '~/db/schema/supplier';
 import { users } from '~/db/schema/users';
 import { createUpdateSchema } from 'drizzle-zod';
-import { handleExpiredSession, handleInvalidRequest } from '~/app/api/handle-error-res';
+import { handleDataNotFound, handleExpiredSession, handleInvalidRequest } from '~/app/api/handle-error-res';
 import { handleSuccessResponse } from '~/app/api/handle-success-res';
 import { bodyParse } from '~/app/api/body-parse';
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, and } from 'drizzle-orm';
 import { requireUserAuth } from '../../protect-route';
 import { Params } from '../../params.type';
 
@@ -43,11 +43,11 @@ export async function GET(req: NextRequest, context: Params) {
         .leftJoin(category, eq(sku.categoryId, category.id))
         .leftJoin(supplier, eq(sku.supplierId, supplier.id))
         .leftJoin(users, eq(stockTransaction.createdBy, users.id))
-        .where(eq(stockTransaction.id, id))
+        .where(and(eq(stockTransaction.id, id), eq(stockTransaction.type, 'OUT'))) // Hanya stock-out
         .limit(1);
 
       if (!result.length) {
-        return handleInvalidRequest('Stock transaction not found');
+        return handleInvalidRequest('Stock-out transaction not found');
       }
 
       const { skuCode, skuName, categoryName, supplierName, createdByName, ...transactionData } = result[0];
@@ -76,12 +76,14 @@ export async function GET(req: NextRequest, context: Params) {
   });
 }
 
-const updateStockInSchema = createUpdateSchema(stockTransaction);
+const updateStockOutTransactionSchema = createUpdateSchema(stockTransaction).omit({
+  type: true
+});
 
 export async function PATCH(req: NextRequest, context: Params) {
   const { id } = context.params;
   const body = await bodyParse(req);
-  const { data, success, error } = updateStockInSchema.safeParse(body);
+  const { data, success, error } = updateStockOutTransactionSchema.safeParse(body);
 
   if (!success) {
     return handleInvalidRequest(error);
@@ -90,7 +92,6 @@ export async function PATCH(req: NextRequest, context: Params) {
   return requireUserAuth(req, async (session) => {
     if (session) {
       try {
-        // Single transaction with optimized queries
         const result = await db.transaction(async (tx) => {
           const [existing] = await tx
             .select({
@@ -100,43 +101,53 @@ export async function PATCH(req: NextRequest, context: Params) {
               skuId: stockTransaction.skuId
             })
             .from(stockTransaction)
-            .where(eq(stockTransaction.id, id))
+            .where(and(eq(stockTransaction.id, id), eq(stockTransaction.type, 'OUT'))) // Hanya stock-out
             .limit(1);
 
           if (!existing) {
-            throw new Error('Stock transaction not found');
+            return handleInvalidRequest('Stock-out transaction not found');
           }
 
-          if (existing.type !== 'IN') {
-            throw new Error('Only stock-in transactions can be updated');
-          }
-
-          // Prepare update data efficiently
           const updateData: Record<string, Date | string | number | null> = { updatedAt: new Date() };
 
-          // Only process fields that are actually being updated
           if (data.quantity !== undefined) updateData.quantity = data.quantity;
           if (data.unitPrice !== undefined) updateData.unitPrice = data.unitPrice.toString();
           if (data.totalPrice !== undefined) updateData.totalPrice = data.totalPrice.toString();
           if (data.documentNumber !== undefined) updateData.documentNumber = data.documentNumber;
           if (data.notes !== undefined) updateData.notes = data.notes;
 
-          // Calculate quantity difference only if quantity is being updated
           const quantityDifference = data.quantity !== undefined ? data.quantity - existing.quantity : 0;
 
-          // Update stock transaction
+          if (quantityDifference > 0) {
+            const [currentSku] = await tx
+              .select({ stock: sku.stock })
+              .from(sku)
+              .where(eq(sku.id, existing.skuId))
+              .limit(1);
+
+            if (!currentSku) {
+              return handleDataNotFound();
+            }
+
+            if (currentSku.stock < quantityDifference) {
+              return handleInvalidRequest(
+                `Insufficient stock. Available: ${currentSku.stock}, Additional needed: ${quantityDifference}`
+              );
+            }
+          }
+
           const [updatedTransaction] = await tx
             .update(stockTransaction)
             .set(updateData)
             .where(eq(stockTransaction.id, id))
             .returning();
 
-          // Update SKU stock if quantity changed
+          // Update SKU stock if quantity changed (untuk stock-out, kurangi stock)
           if (quantityDifference !== 0) {
             await tx
               .update(sku)
               .set({
-                stock: sql`${sku.stock} + ${quantityDifference}`,
+                stock: sql`${sku.stock} - ${quantityDifference}`,
                 updatedAt: new Date()
               })
               .where(eq(sku.id, existing.skuId));
@@ -147,7 +158,7 @@ export async function PATCH(req: NextRequest, context: Params) {
 
         return handleSuccessResponse(result);
       } catch (error) {
-        const message = error instanceof Error ? error.message : 'Error updating stock-in';
+        const message = error instanceof Error ? error.message : 'Error updating stock-out transaction';
         return handleInvalidRequest(message);
       }
     }
@@ -173,15 +184,11 @@ export async function DELETE(req: NextRequest, context: Params) {
               skuId: stockTransaction.skuId
             })
             .from(stockTransaction)
-            .where(eq(stockTransaction.id, id))
+            .where(and(eq(stockTransaction.id, id), eq(stockTransaction.type, 'OUT'))) // Hanya stock-out
             .limit(1);
 
           if (!existing) {
-            throw new Error('Stock transaction not found');
-          }
-
-          if (existing.type !== 'IN') {
-            throw new Error('Only stock-in transactions can be deleted');
+            return handleInvalidRequest('Stock-out transaction not found');
           }
 
           // Delete stock transaction
@@ -190,11 +197,11 @@ export async function DELETE(req: NextRequest, context: Params) {
             .where(eq(stockTransaction.id, id))
             .returning();
 
-          // Update SKU stock
+          // Update SKU stock - tambah stock karena stock-out dihapus
           await tx
             .update(sku)
             .set({
-              stock: sql`${sku.stock} - ${existing.quantity}`,
+              stock: sql`${sku.stock} + ${existing.quantity}`,
               updatedAt: new Date()
             })
             .where(eq(sku.id, existing.skuId));
@@ -204,7 +211,7 @@ export async function DELETE(req: NextRequest, context: Params) {
 
         return handleSuccessResponse(result);
       } catch (error) {
-        const message = error instanceof Error ? error.message : 'Error deleting stock-in';
+        const message = error instanceof Error ? error.message : 'Error deleting stock-out';
         return handleInvalidRequest(message);
       }
     }

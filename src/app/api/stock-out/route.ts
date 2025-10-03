@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { db } from '~/db/config';
-import { stockTransaction, stockTransactionTypeEnum } from '~/db/schema/stock-transaction';
+import { stockTransaction } from '~/db/schema/stock-transaction';
 import { sku } from '~/db/schema/sku';
 import { category } from '~/db/schema/category';
 import { supplier } from '~/db/schema/supplier';
@@ -13,9 +13,6 @@ import { and, asc, desc, ilike, eq, sql } from 'drizzle-orm';
 import { requireUserAuth } from '../protect-route';
 import { createMeta } from '../create-meta';
 import { LIMIT_DB_ROW } from '~/config/constant';
-import { z } from 'zod';
-
-type StockTransactionType = (typeof stockTransactionTypeEnum.enumValues)[number];
 
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
@@ -24,29 +21,24 @@ export async function GET(req: NextRequest) {
     keyword: searchParams.get('keyword'),
     page: searchParams.get('page'),
     sort: searchParams.get('sort'), // asc | desc
-    sortBy: searchParams.get('sortBy'), // createdAt | documentNumber
-    type: searchParams.get('type') // IN | OUT
+    sortBy: searchParams.get('sortBy') // createdAt | updatedAt
   };
 
   let sortedBy = desc(stockTransaction.createdAt);
 
+  const typeCondition = eq(stockTransaction.type, 'OUT');
   const searchCondition = params.keyword ? ilike(sku.name, `%${params.keyword}%`) : undefined;
-  const typeCondition = params.type
-    ? eq(stockTransaction.type, params.type as StockTransactionType)
-    : undefined;
   const offset = params.page ? (Number(params.page) - 1) * LIMIT_DB_ROW : 0;
   const queryFilter = and(searchCondition, typeCondition);
   const sort = params.sort || 'desc';
   const sortBy = params.sortBy || 'createdAt';
 
   if (sort === 'asc') {
-    sortedBy =
-      sortBy === 'documentNumber' ? asc(stockTransaction.documentNumber) : asc(stockTransaction.createdAt);
+    sortedBy = sortBy === 'updatedAt' ? asc(stockTransaction.updatedAt) : asc(stockTransaction.createdAt);
   }
 
   if (sort === 'desc') {
-    sortedBy =
-      sortBy === 'documentNumber' ? desc(stockTransaction.documentNumber) : desc(stockTransaction.createdAt);
+    sortedBy = sortBy === 'updatedAt' ? desc(stockTransaction.updatedAt) : desc(stockTransaction.createdAt);
   }
 
   return requireUserAuth(req, async (session) => {
@@ -134,19 +126,14 @@ export async function GET(req: NextRequest) {
   });
 }
 
-// Schema untuk stock-in (hanya type IN)
-const stockInSchema = createInsertSchema(stockTransaction, {
-  type: z.enum(['IN']),
-  quantity: z.number().positive('Quantity must be greater than 0'),
-  unitPrice: z.number().min(0, 'Unit price cannot be negative'),
-  totalPrice: z.number().min(0, 'Total price cannot be negative'),
-  documentNumber: z.string().optional(),
-  notes: z.string().optional()
-}).omit({ id: true, createdBy: true, createdAt: true, updatedAt: true });
+const stockOutTransactionSchema = createInsertSchema(stockTransaction).omit({
+  createdBy: true,
+  type: true
+});
 
 export async function POST(req: NextRequest) {
   const body = await bodyParse(req);
-  const { data, success, error } = stockInSchema.safeParse(body);
+  const { data, success, error } = stockOutTransactionSchema.safeParse(body);
 
   if (!success) {
     return handleInvalidRequest(error);
@@ -155,25 +142,39 @@ export async function POST(req: NextRequest) {
   return requireUserAuth(req, async (session) => {
     if (session) {
       try {
-        // Mulai transaksi database
         const result = await db.transaction(async (tx) => {
-          // Insert stock transaction
+          const [currentSku] = await tx
+            .select({ stock: sku.stock })
+            .from(sku)
+            .where(eq(sku.id, data.skuId))
+            .limit(1);
+
+          if (!currentSku) {
+            return handleInvalidRequest('SKU not found');
+          }
+
+          if (currentSku.stock < data.quantity) {
+            return handleInvalidRequest(
+              `Insufficient stock. Available: ${currentSku.stock}, Requested: ${data.quantity}`
+            );
+          }
+
           const [transaction] = await tx
             .insert(stockTransaction)
             .values({
               ...data,
-              type: 'IN',
+              type: 'OUT',
               createdBy: session.user.id,
-              unitPrice: data.unitPrice.toString(),
-              totalPrice: data.totalPrice.toString()
+              unitPrice: (data.unitPrice || 0).toString(),
+              totalPrice: (data.totalPrice || 0).toString()
             })
             .returning();
 
-          // Update stock quantity di tabel SKU
+          // Update stock quantity di tabel SKU (kurangi stock)
           await tx
             .update(sku)
             .set({
-              stock: sql`${sku.stock} + ${data.quantity}`,
+              stock: sql`${sku.stock} - ${data.quantity}`,
               updatedAt: new Date()
             })
             .where(eq(sku.id, data.skuId));
@@ -183,7 +184,7 @@ export async function POST(req: NextRequest) {
 
         return handleSuccessResponse(result);
       } catch (error) {
-        return handleInvalidRequest(`Error creating stock-in: ${error}`);
+        return handleInvalidRequest(`Error creating stock-out: ${error}`);
       }
     }
 

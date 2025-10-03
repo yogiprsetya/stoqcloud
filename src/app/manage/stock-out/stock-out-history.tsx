@@ -14,14 +14,14 @@ import {
 } from '~/components/ui/dropdown-menu';
 import dynamic from 'next/dynamic';
 import { DataTable } from '~/components/common/data-table';
-import { useFetchStockIn } from '~/app/manage/stock-in/use-fetch-stock-in';
+import { useFetchStockOut } from '~/app/manage/stock-out/use-fetch-stock-out';
 import { formatDate } from '~/utils/date';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { SelectStockTransaction } from './schema';
 import { SearchField } from '~/components/common/search-field';
 
-const StockInDetail = dynamic(
-  () => import('./stock-in-detail').then((mod) => ({ default: mod.StockInDetail })),
+const StockOutDetail = dynamic(
+  () => import('./stock-out-detail').then((mod) => ({ default: mod.StockOutDetail })),
   {
     ssr: false
   }
@@ -29,11 +29,11 @@ const StockInDetail = dynamic(
 
 const MAX_NAME_LENGTH = 36;
 
-export const StockInHistory = () => {
+export const StockOutHistory = () => {
   const [detailId, setDetailId] = useState<string | null>(null);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-  const { transactions, meta, setPage, setKeyword, keyword, isLoading } = useFetchStockIn();
+  const { transactions, meta, setPage, setKeyword, keyword, isLoading } = useFetchStockOut();
 
   const handleViewDetails = (id: string) => {
     setDetailId(id);
@@ -84,8 +84,8 @@ export const StockInHistory = () => {
       accessorKey: 'quantity',
       header: 'Quantity',
       cell: ({ row }) => (
-        <Badge variant="success" size="sm">
-          +{row.original.quantity}
+        <Badge variant="destructive" size="sm">
+          -{row.original.quantity}
         </Badge>
       )
     },
@@ -139,7 +139,7 @@ export const StockInHistory = () => {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Stock In History</CardTitle>
+          <CardTitle>Stock Out History</CardTitle>
 
           <div className="flex gap-2">
             <SearchField
@@ -177,7 +177,7 @@ export const StockInHistory = () => {
           <Pagination meta={meta} onPageChange={handlePageChange} showInfo={false} />
 
           {/* Detail Dialog */}
-          <StockInDetail isOpen={isDetailOpen} onClose={handleCloseDetail} transactionId={detailId} />
+          <StockOutDetail isOpen={isDetailOpen} onClose={handleCloseDetail} transactionId={detailId} />
         </div>
       </CardContent>
     </Card>
