@@ -37,7 +37,7 @@ const StockInDetail = dynamic(
   }
 );
 
-const MAX_NAME_LENGTH = 30;
+const MAX_NAME_LENGTH = 36;
 
 export const StockInHistory = () => {
   const [detailId, setDetailId] = useState<string | null>(null);
@@ -159,7 +159,7 @@ export const StockInHistory = () => {
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
           <Loader2 className="size-8 animate-spin text-muted-foreground mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Memuat data...</h3>
+          <h3 className="text-lg font-semibold">Memuat data...</h3>
           <p className="text-muted-foreground text-center">Sedang mengambil data stock in dari server.</p>
         </CardContent>
       </Card>

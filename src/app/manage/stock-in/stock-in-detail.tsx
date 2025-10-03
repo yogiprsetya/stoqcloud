@@ -37,7 +37,7 @@ export function StockInDetail({ isOpen, onClose, transactionId }: StockInDetailP
 
         {error && (
           <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
+            <AlertCircle className="size-4" />
             <AlertDescription>
               <strong>Error:</strong> {error}
             </AlertDescription>
@@ -63,7 +63,7 @@ export function StockInDetail({ isOpen, onClose, transactionId }: StockInDetailP
             {/* SKU Information */}
             <div className="space-y-4">
               <h4 className="font-medium flex items-center gap-2">
-                <Package className="h-4 w-4" />
+                <Package className="size-4" />
                 Product Information
               </h4>
 
@@ -80,12 +80,12 @@ export function StockInDetail({ isOpen, onClose, transactionId }: StockInDetailP
 
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Category</label>
-                  <p>{transaction.sku.categoryName || '-'}</p>
+                  <p>{transaction.category?.name || '-'}</p>
                 </div>
 
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Supplier</label>
-                  <p>{transaction.sku.supplierName || '-'}</p>
+                  <p>{transaction.category?.name || '-'}</p>
                 </div>
               </div>
             </div>
@@ -93,7 +93,7 @@ export function StockInDetail({ isOpen, onClose, transactionId }: StockInDetailP
             {/* Transaction Details */}
             <div className="space-y-4">
               <h4 className="font-medium flex items-center gap-2">
-                <Hash className="h-4 w-4" />
+                <Hash className="size-4" />
                 Transaction Details
               </h4>
 
@@ -118,7 +118,7 @@ export function StockInDetail({ isOpen, onClose, transactionId }: StockInDetailP
             {/* Document Information */}
             <div className="space-y-4">
               <h4 className="font-medium flex items-center gap-2">
-                <FileText className="h-4 w-4" />
+                <FileText className="size-4" />
                 Document Information
               </h4>
 
@@ -131,7 +131,7 @@ export function StockInDetail({ isOpen, onClose, transactionId }: StockInDetailP
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Transaction Date</label>
                   <p className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
+                    <Calendar className="size-4" />
                     {formatDetailDate(transaction.createdAt)}
                   </p>
                 </div>

@@ -5,18 +5,25 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '~/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '~/components/ui/form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '~/components/ui/select';
 import { Input } from '~/components/ui/input';
 import { Textarea } from '~/components/ui/textarea';
 import { Button } from '~/components/ui/button';
 import { Badge } from '~/components/ui/badge';
-import { Package, AlertCircle, Loader2 } from 'lucide-react';
+import { Package, AlertCircle, Loader2, X } from 'lucide-react';
 import { Alert, AlertDescription } from '~/components/ui/alert';
 import { SelectSKU } from '../sku/schema';
 import { stockInFormSchema, StockInFormData } from './schema';
-import { useSku } from '~/app/manage/stock-in/use-sku';
 import { useSupplier } from '~/app/manage/stock-in/use-supplier';
 import { useActionsStockIn } from '~/app/manage/stock-in/use-actions-stock-in';
+import dynamic from 'next/dynamic';
+import { SearchField } from '~/components/common/search-field';
+
+const SkuSearchDialog = dynamic(
+  () => import('./sku-search-dialog').then((mod) => ({ default: mod.SkuSearchDialog })),
+  {
+    ssr: false
+  }
+);
 
 interface StockInFormProps {
   isOpen: boolean;
@@ -24,13 +31,13 @@ interface StockInFormProps {
   onSuccess?: () => void;
 }
 
-const MAX_ITEM_NAME = 44;
+const MAX_ITEM_NAME = 56;
 
 export function StockInForm({ isOpen, onClose, onSuccess }: StockInFormProps) {
   const [selectedSku, setSelectedSku] = useState<SelectSKU | null>(null);
+  const [isSkuSearchOpen, setIsSkuSearchOpen] = useState(false);
 
   // Hooks untuk data dan API calls
-  const { skus, loading: skusLoading, error: skusError } = useSku();
   const { loading: suppliersLoading, error: suppliersError } = useSupplier();
   const { createStockIn, isLoading: submitting } = useActionsStockIn();
 
@@ -56,6 +63,12 @@ export function StockInForm({ isOpen, onClose, onSuccess }: StockInFormProps) {
   }, [quantity, unitPrice, form]);
 
   const onSubmit = async (data: StockInFormData) => {
+    // Validasi tambahan untuk memastikan SKU dipilih
+    if (!selectedSku) {
+      form.setError('skuId', { message: 'Please select a SKU' });
+      return;
+    }
+
     const result = await createStockIn(data);
 
     if (result?.success) {
@@ -69,12 +82,17 @@ export function StockInForm({ isOpen, onClose, onSuccess }: StockInFormProps) {
     }
   };
 
-  const handleSkuChange = (skuId: string) => {
-    const sku = skus.find((s) => s.id === skuId);
-    setSelectedSku(sku || null);
-    form.setValue('skuId', skuId);
+  const handleSkuSelect = (sku: SelectSKU) => {
+    setSelectedSku(sku);
+    form.setValue('skuId', sku.id);
+    form.clearErrors('skuId');
   };
 
+  const handleClearSku = () => {
+    setSelectedSku(null);
+    form.setValue('skuId', '');
+    form.clearErrors('skuId');
+  };
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -86,68 +104,66 @@ export function StockInForm({ isOpen, onClose, onSuccess }: StockInFormProps) {
         </DialogHeader>
 
         {/* Error Messages */}
-        {(skusError || suppliersError) && (
+        {suppliersError && (
           <Alert variant="destructive">
             <AlertCircle className="size-4" />
-            <AlertDescription>{skusError || suppliersError}</AlertDescription>
+            <AlertDescription>{suppliersError}</AlertDescription>
           </Alert>
         )}
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* SKU Selection */}
-            <FormField
-              control={form.control}
-              name="skuId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Select SKU</FormLabel>
-                  <Select onValueChange={handleSkuChange} value={field.value} disabled={skusLoading}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue
-                          placeholder={skusLoading ? 'Loading SKUs...' : 'Select SKU to stock in'}
-                        />
-                      </SelectTrigger>
-                    </FormControl>
-
-                    <SelectContent>
-                      {skus.map((sku) => (
-                        <SelectItem key={sku.id} value={sku.id}>
-                          <div className="flex flex-col">
-                            <span className="font-medium">
-                              {sku.skuCode} -{' '}
-                              {sku.name.length > MAX_ITEM_NAME
-                                ? sku.name.slice(0, MAX_ITEM_NAME) + '...'
-                                : sku.name}
-                            </span>
-
-                            <span className="text-sm text-muted-foreground">
-                              Current stock: {sku.stock} | {sku.category?.name} | {sku.supplier?.name}
-                            </span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
+        <div className="space-y-2">
+          <div className="flex gap-2">
+            <SearchField
+              placeholder="Click Select to choose SKU..."
+              value={selectedSku ? `${selectedSku.skuCode} - ${selectedSku.name}` : ''}
+              readOnly
+              onClick={() => setIsSkuSearchOpen(true)}
+              className="flex-1"
             />
 
-            {/* Selected SKU Info */}
             {selectedSku && (
-              <Alert>
-                <AlertCircle className="size-4" />
-                <AlertDescription>
-                  <strong>{selectedSku.skuCode}</strong> - {selectedSku.name}
-                  <br />
-                  Current stock: <Badge variant="outline">{selectedSku.stock}</Badge>
-                  <br />
-                  Category: {selectedSku.category?.name} | Supplier: {selectedSku.supplier?.name}
-                </AlertDescription>
-              </Alert>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                title="Clear selected SKU"
+                onClick={handleClearSku}
+                className="shrink-0"
+              >
+                <X />
+              </Button>
             )}
+          </div>
+
+          {/* Selected SKU Info */}
+          {selectedSku && (
+            <Alert>
+              <AlertDescription>
+                <div title={selectedSku.name} className="mb-2">
+                  <b>{selectedSku.skuCode}</b> -{' '}
+                  {selectedSku.name.length > MAX_ITEM_NAME
+                    ? selectedSku.name.slice(0, MAX_ITEM_NAME) + '...'
+                    : selectedSku.name}
+                </div>
+
+                <div>
+                  Current stock:{' '}
+                  <Badge variant="outline" size="sm">
+                    {selectedSku.stock}
+                  </Badge>
+                </div>
+
+                <div>
+                  {selectedSku.category?.name} | {selectedSku.supplier?.name}
+                </div>
+              </AlertDescription>
+            </Alert>
+          )}
+        </div>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <Input {...form.register('skuId')} readOnly className="hidden" />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Quantity */}
@@ -157,6 +173,7 @@ export function StockInForm({ isOpen, onClose, onSuccess }: StockInFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Quantity</FormLabel>
+
                     <FormControl>
                       <Input
                         type="number"
@@ -248,7 +265,7 @@ export function StockInForm({ isOpen, onClose, onSuccess }: StockInFormProps) {
               <Button type="button" variant="outline" onClick={onClose} disabled={submitting}>
                 Cancel
               </Button>
-              <Button type="submit" disabled={submitting || skusLoading || suppliersLoading}>
+              <Button type="submit" disabled={submitting || suppliersLoading}>
                 {submitting ? (
                   <>
                     <Loader2 className="mr-2 size-4 animate-spin" />
@@ -262,6 +279,13 @@ export function StockInForm({ isOpen, onClose, onSuccess }: StockInFormProps) {
           </form>
         </Form>
       </DialogContent>
+
+      {/* SKU Search Dialog */}
+      <SkuSearchDialog
+        isOpen={isSkuSearchOpen}
+        onClose={() => setIsSkuSearchOpen(false)}
+        onSelect={handleSkuSelect}
+      />
     </Dialog>
   );
 }

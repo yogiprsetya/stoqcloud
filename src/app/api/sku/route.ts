@@ -63,6 +63,7 @@ export async function GET(req: NextRequest) {
         .leftJoin(supplier, eq(sku.supplierId, supplier.id))
         .orderBy(sortedBy)
         .offset(offset)
+        .where(queryFilter)
         .limit(LIMIT_DB_ROW);
 
       const meta = await createMeta({

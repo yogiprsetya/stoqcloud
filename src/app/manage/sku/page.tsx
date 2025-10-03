@@ -3,9 +3,6 @@
 import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import type { SelectSKU } from './schema';
-import { Button } from '~/components/ui/button';
-import { useDebounce } from 'use-debounce';
-import { SearchField } from '~/components/common/search-field';
 
 const SkuTable = dynamic(() => import('./sku-table').then((m) => m.SkuTable), {
   ssr: false
@@ -20,13 +17,10 @@ const SkuDeleteDialog = dynamic(() => import('./sku-delete-dialog').then((m) => 
 });
 
 export default function DepotSkuPage() {
-  const [q, setQ] = useState('');
   const [editing, setEditing] = useState<SelectSKU | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState<SelectSKU | null>(null);
-
-  const [debouncedQ] = useDebounce(q, 500);
 
   const handleOpenModal = () => {
     setEditing(null);
@@ -50,17 +44,12 @@ export default function DepotSkuPage() {
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-6">
         <h1 className="text-xl font-semibold">SKU Manager</h1>
-
-        <div className="flex gap-2">
-          <SearchField value={q} onChange={(value) => setQ(value)} placeholder="Search ..." />
-
-          <Button onClick={handleOpenModal}>Add SKU</Button>
-        </div>
+        <p className="text-muted-foreground">Manage data master SKUs</p>
       </div>
 
-      <SkuTable onEdit={handleEdit} onDelete={handleDelete} keyword={debouncedQ} />
+      <SkuTable onEdit={handleEdit} onDelete={handleDelete} handleOpenModal={handleOpenModal} />
 
       <SkuCreateDialog isOpen={isModalOpen} onClose={handleCloseModal} editing={editing} />
 

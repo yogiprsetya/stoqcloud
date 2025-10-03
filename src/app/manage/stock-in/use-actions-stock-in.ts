@@ -15,14 +15,11 @@ export const useActionsStockIn = () => {
     setLoading(true);
 
     return httpClient
-      .post('stock-in', {
-        ...payload,
-        type: 'IN' // Pastikan type adalah IN untuk stock-in
-      })
+      .post('stock', { ...payload, type: 'IN' })
       .then((res) => {
         if (res.data.success) {
           toast.success('Stock-in created successfully!');
-          mutate('stock-in');
+          mutate('stock?type=IN');
         } else {
           toast.error(`Failed to create stock-in! Status: ${res.status}`);
         }
@@ -37,11 +34,11 @@ export const useActionsStockIn = () => {
     setLoading(true);
 
     return httpClient
-      .patch(`stock-in/${id}`, payload)
+      .patch(`stock/${id}`, payload)
       .then((res) => {
         if (res.data.success) {
           toast.success('Stock-in updated successfully!');
-          mutate('stock-in');
+          mutate('stock');
         } else {
           toast.error(`Failed to update stock-in! Status: ${res.status}`);
         }
@@ -60,7 +57,7 @@ export const useActionsStockIn = () => {
       .then((res) => {
         if (res.data.success) {
           toast.success('Stock-in deleted successfully!');
-          mutate('stock-in');
+          mutate('stock');
         } else {
           toast.error(`Failed to delete stock-in! Status: ${res.status}`);
         }

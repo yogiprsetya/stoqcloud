@@ -5,13 +5,14 @@ import type { SelectSKU } from './schema';
 import { Button } from '~/components/ui/button';
 import { formatRp } from '~/utils/rupiah';
 import { Pencil, Trash } from 'lucide-react';
+import { SearchField } from '~/components/common/search-field';
 
 const MAX_NAME_LENGTH = 30;
 
 interface SkuTableProps {
   onEdit: (item: SelectSKU) => void;
   onDelete: (item: SelectSKU) => void;
-  keyword?: string;
+  handleOpenModal: () => void;
 }
 
 const createColumns = (
@@ -90,8 +91,8 @@ const createColumns = (
   }
 ];
 
-export const SkuTable = ({ onEdit, onDelete, keyword }: SkuTableProps) => {
-  const { skus, meta, isLoading, setPage } = useFetchSku({ keyword });
+export const SkuTable = ({ onEdit, onDelete, handleOpenModal }: SkuTableProps) => {
+  const { skus, meta, isLoading, setPage, setKeyword, keyword } = useFetchSku();
 
   if (isLoading) {
     return <div>Loading SKU data...</div>;
@@ -104,11 +105,20 @@ export const SkuTable = ({ onEdit, onDelete, keyword }: SkuTableProps) => {
 
   return (
     <div className="space-y-3">
+      <div className="flex items-center justify-end">
+        <div className="flex gap-2">
+          <SearchField value={keyword} onChange={setKeyword} placeholder="Search ..." />
+          <Button onClick={handleOpenModal}>Add SKU</Button>
+        </div>
+      </div>
+
       <DataTable columns={columns} data={skus ?? []} />
+
       <div className="flex items-center justify-between">
         <div className="text-sm text-muted-foreground">
           Halaman {meta?.currentPage ?? 1} dari {meta?.totalPages ?? 1} • Total {meta?.totalCount ?? 0}
         </div>
+
         <div className="flex gap-2">
           <Button
             variant="outline"
@@ -117,6 +127,7 @@ export const SkuTable = ({ onEdit, onDelete, keyword }: SkuTableProps) => {
           >
             Prev
           </Button>
+
           <Button
             variant="outline"
             disabled={!canNext}

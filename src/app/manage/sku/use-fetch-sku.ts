@@ -7,23 +7,20 @@ type Options = {
   disabled?: boolean;
 };
 
-type Params = {
-  keyword?: string;
-};
-
-export const useFetchSku = (params?: Params, opt?: Options) => {
+export const useFetchSku = (opt?: Options) => {
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState<'asc' | 'desc' | null>(null);
   const [sortBy, setSortBy] = useState<'name' | 'createdAt' | null>(null);
+  const [keyword, setKeyword] = useState<string>('');
 
   const search = new URLSearchParams();
 
-  if (params?.keyword) search.set('keyword', params.keyword);
+  if (keyword) search.set('keyword', keyword);
   if (page) search.set('page', String(page));
   if (sort) search.set('sort', sort);
   if (sortBy) search.set('sortBy', sortBy);
 
-  const key = opt?.disabled ? null : `sku${search.toString()}`;
+  const key = opt?.disabled ? null : `sku?${search.toString()}`;
 
   const { data, error, isLoading, mutate } = useSWR<HttpResponse<SelectSKU[]>>(key);
 
@@ -35,6 +32,8 @@ export const useFetchSku = (params?: Params, opt?: Options) => {
     mutate,
     setPage,
     setSort,
-    setSortBy
+    setSortBy,
+    setKeyword,
+    keyword
   };
 };

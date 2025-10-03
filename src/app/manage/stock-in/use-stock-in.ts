@@ -31,11 +31,11 @@ export function useStockInStats(): UseStockInStatsReturn {
       const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1).toISOString();
 
       // Fetch data untuk hari ini
-      const todayResponse = await fetch(`/api/stock-in?type=IN&startDate=${startOfDay}`);
+      const todayResponse = await fetch(`/api/stock?type=IN&startDate=${startOfDay}`);
       const todayResult = await todayResponse.json();
 
       // Fetch data untuk bulan ini
-      const monthResponse = await fetch(`/api/stock-in?type=IN&startDate=${startOfMonth}`);
+      const monthResponse = await fetch(`/api/stock?type=IN&startDate=${startOfMonth}`);
       const monthResult = await monthResponse.json();
 
       if (todayResult.success && monthResult.success) {
