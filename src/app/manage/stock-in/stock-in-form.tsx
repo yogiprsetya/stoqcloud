@@ -13,10 +13,10 @@ import { Package, AlertCircle, Loader2, X } from 'lucide-react';
 import { Alert, AlertDescription } from '~/components/ui/alert';
 import { SelectSKU } from '../sku/schema';
 import { stockInFormSchema, StockInFormData } from './schema';
-import { useSupplier } from '~/app/manage/stock-in/use-supplier';
 import { useActionsStockIn } from '~/app/manage/stock-in/use-actions-stock-in';
 import dynamic from 'next/dynamic';
 import { SearchField } from '~/components/common/search-field';
+import { useFetchSupplier } from '../supplier/use-fetch-supplier';
 
 const SkuSearchDialog = dynamic(
   () => import('./sku-search-dialog').then((mod) => ({ default: mod.SkuSearchDialog })),
@@ -38,7 +38,7 @@ export function StockInForm({ isOpen, onClose, onSuccess }: StockInFormProps) {
   const [isSkuSearchOpen, setIsSkuSearchOpen] = useState(false);
 
   // Hooks untuk data dan API calls
-  const { loading: suppliersLoading, error: suppliersError } = useSupplier();
+  const { isLoading: suppliersLoading, error: suppliersError } = useFetchSupplier({ disabled: !isOpen });
   const { createStockIn, isLoading: submitting } = useActionsStockIn();
 
   const form = useForm<StockInFormData>({
@@ -93,6 +93,7 @@ export function StockInForm({ isOpen, onClose, onSuccess }: StockInFormProps) {
     form.setValue('skuId', '');
     form.clearErrors('skuId');
   };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -195,6 +196,7 @@ export function StockInForm({ isOpen, onClose, onSuccess }: StockInFormProps) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Unit Price</FormLabel>
+
                     <FormControl>
                       <Input
                         type="number"
@@ -233,6 +235,7 @@ export function StockInForm({ isOpen, onClose, onSuccess }: StockInFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Document Number (Optional)</FormLabel>
+
                   <FormControl>
                     <Input placeholder="PO-2024-001, GRN-001, etc" {...field} />
                   </FormControl>
@@ -248,6 +251,7 @@ export function StockInForm({ isOpen, onClose, onSuccess }: StockInFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Notes (Optional)</FormLabel>
+
                   <FormControl>
                     <Textarea
                       placeholder="Add notes if needed..."
@@ -265,10 +269,11 @@ export function StockInForm({ isOpen, onClose, onSuccess }: StockInFormProps) {
               <Button type="button" variant="outline" onClick={onClose} disabled={submitting}>
                 Cancel
               </Button>
+
               <Button type="submit" disabled={submitting || suppliersLoading}>
                 {submitting ? (
                   <>
-                    <Loader2 className="mr-2 size-4 animate-spin" />
+                    <Loader2 className="animate-spin" />
                     Saving...
                   </>
                 ) : (

@@ -7,14 +7,14 @@ import { Badge } from '~/components/ui/badge';
 import { Plus, Download } from 'lucide-react';
 import { StockInForm } from './stock-in-form';
 import { StockInHistory } from './stock-in-history';
-import { useStockInStats } from '~/app/manage/stock-in/use-stock-in';
+import { useStatStockIn } from '~/app/manage/stock-in/use-stat-stock-in';
 import { formatRp } from '~/utils/rupiah';
 
 export default function StockInPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
 
   // Hook untuk statistik
-  const { stats, loading: statsLoading, refetch: refetchStats } = useStockInStats();
+  const { stats, loading: statsLoading, mutate: refetchStats } = useStatStockIn();
 
   const handleRefresh = () => {
     refetchStats(); // Refresh statistik juga

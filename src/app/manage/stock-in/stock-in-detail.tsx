@@ -5,7 +5,7 @@ import { Badge } from '~/components/ui/badge';
 import { Separator } from '~/components/ui/separator';
 import { Calendar, Package, FileText, Hash, Loader2, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '~/components/ui/alert';
-import { useStockInDetail } from '~/app/manage/stock-in/use-stock-in';
+import { useFindStockIn } from './use-find-stock-in';
 import { formatDetailDate } from '~/utils/date';
 import { formatRp } from '~/utils/rupiah';
 
@@ -16,7 +16,7 @@ interface StockInDetailProps {
 }
 
 export function StockInDetail({ isOpen, onClose, transactionId }: StockInDetailProps) {
-  const { transaction, loading, error } = useStockInDetail(transactionId);
+  const { transaction, loading, error } = useFindStockIn(transactionId);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
