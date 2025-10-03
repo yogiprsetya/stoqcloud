@@ -18,7 +18,7 @@ export const useActionsStockIn = () => {
       .post('stock-in', {
         ...payload,
         unitPrice: payload.unitPrice.toString(),
-        totalPrice: payload.totalPrice.toString()
+        totalPrice: (payload.unitPrice * payload.quantity).toString()
       })
       .then((res) => {
         if (res.data.success) {
@@ -41,7 +41,7 @@ export const useActionsStockIn = () => {
       .patch(`stock-in/${id}`, {
         ...payload,
         unitPrice: payload.unitPrice.toString(),
-        totalPrice: payload.totalPrice.toString()
+        totalPrice: (payload.unitPrice * payload.quantity).toString()
       })
       .then((res) => {
         if (res.data.success) {

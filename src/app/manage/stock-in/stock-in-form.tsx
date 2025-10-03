@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '~/components/ui/dialog';
@@ -17,6 +17,7 @@ import { useActionsStockIn } from '~/app/manage/stock-in/use-actions-stock-in';
 import dynamic from 'next/dynamic';
 import { SearchField } from '~/components/common/search-field';
 import { useFetchSupplier } from '../supplier/use-fetch-supplier';
+import { Label } from '~/components/ui/label';
 
 const SkuSearchDialog = dynamic(
   () => import('../sku-search-dialog').then((mod) => ({ default: mod.SkuSearchDialog })),
@@ -47,7 +48,6 @@ export function StockInForm({ isOpen, onClose, onSuccess }: StockInFormProps) {
       skuId: '',
       quantity: 1,
       unitPrice: 0,
-      totalPrice: 0,
       documentNumber: '',
       notes: ''
     }
@@ -56,11 +56,6 @@ export function StockInForm({ isOpen, onClose, onSuccess }: StockInFormProps) {
   // Watch quantity dan unitPrice untuk auto-calculate totalPrice
   const quantity = form.watch('quantity');
   const unitPrice = form.watch('unitPrice');
-
-  useEffect(() => {
-    const total = quantity * unitPrice;
-    form.setValue('totalPrice', total);
-  }, [quantity, unitPrice, form]);
 
   const onSubmit = async (data: StockInFormData) => {
     // Validasi tambahan untuk memastikan SKU dipilih
@@ -213,19 +208,17 @@ export function StockInForm({ isOpen, onClose, onSuccess }: StockInFormProps) {
               />
 
               {/* Total Price */}
-              <FormField
-                control={form.control}
-                name="totalPrice"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Total Price</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="0" readOnly className="bg-muted" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid gap-1">
+                <Label>Total Price</Label>
+
+                <Input
+                  type="number"
+                  placeholder="0"
+                  readOnly
+                  className="bg-muted"
+                  value={quantity * unitPrice}
+                />
+              </div>
             </div>
 
             {/* Document Number */}

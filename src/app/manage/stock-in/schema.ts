@@ -29,7 +29,6 @@ export const stockInFormSchema = z.object({
   skuId: z.string().min(1, 'SKU must be selected'),
   quantity: z.number().positive('Quantity must be greater than 0'),
   unitPrice: z.number().min(0, 'Unit price cannot be negative'),
-  totalPrice: z.number().min(0, 'Total price cannot be negative'),
   documentNumber: z.string().optional(),
   notes: z.string().optional()
 });

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '~/components/ui/dialog';
@@ -16,6 +16,7 @@ import { stockOutFormSchema, StockOutFormData } from './schema';
 import { useActionsStockOut } from '~/app/manage/stock-out/use-actions-stock-out';
 import dynamic from 'next/dynamic';
 import { SearchField } from '~/components/common/search-field';
+import { Label } from '~/components/ui/label';
 
 const SkuSearchDialog = dynamic(
   () => import('../sku-search-dialog').then((mod) => ({ default: mod.SkuSearchDialog })),
@@ -44,35 +45,13 @@ export function StockOutForm({ isOpen, onClose, onSuccess }: StockOutFormProps) 
       skuId: '',
       quantity: 1,
       unitPrice: 0,
-      totalPrice: 0,
       documentNumber: '',
       notes: ''
     }
   });
 
-  // Reset form when dialog opens/closes
-  useEffect(() => {
-    if (isOpen) {
-      form.reset({
-        skuId: '',
-        quantity: 1,
-        unitPrice: 0,
-        totalPrice: 0,
-        documentNumber: '',
-        notes: ''
-      });
-      setSelectedSku(null);
-      setError(null);
-    }
-  }, [isOpen, form]);
-
-  // Auto-calculate total price
-  useEffect(() => {
-    const quantity = form.watch('quantity');
-    const unitPrice = form.watch('unitPrice');
-    const totalPrice = quantity * unitPrice;
-    form.setValue('totalPrice', totalPrice);
-  }, [form.watch('quantity'), form.watch('unitPrice'), form]);
+  const quantity = form.watch('quantity');
+  const unitPrice = form.watch('unitPrice');
 
   const handleSkuSelect = (sku: SelectSKU) => {
     setSelectedSku(sku);
@@ -196,7 +175,6 @@ export function StockOutForm({ isOpen, onClose, onSuccess }: StockOutFormProps) 
                   </FormItem>
                 )}
               />
-
               <FormField
                 control={form.control}
                 name="unitPrice"
@@ -215,28 +193,18 @@ export function StockOutForm({ isOpen, onClose, onSuccess }: StockOutFormProps) 
                   </FormItem>
                 )}
               />
-
               {/* Total Price */}
-              <FormField
-                control={form.control}
-                name="totalPrice"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Total Price *</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        step="0.01"
-                        {...field}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                        readOnly
-                        className="bg-muted"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid gap-1">
+                <Label>Total Price</Label>
+
+                <Input
+                  type="number"
+                  placeholder="0"
+                  readOnly
+                  className="bg-muted"
+                  value={quantity * unitPrice}
+                />
+              </div>
             </div>
 
             {/* Document Number */}
