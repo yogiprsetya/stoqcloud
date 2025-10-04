@@ -11,6 +11,36 @@ type FormData = z.infer<typeof stockInFormSchema>;
 export const useActionsStockIn = () => {
   const [isLoading, setLoading] = useState(false);
 
+  const downloadDocument = useCallback((id: string) => {
+    toast.loading('Mengunduh dokumen...', { id: 'download-stock-in' });
+
+    return httpClient
+      .get(`stock-in/${id}/document`, { responseType: 'blob' })
+      .then((res) => {
+        if (res.status < 200 || res.status >= 300) {
+          throw new Error('Gagal mengunduh dokumen');
+        }
+
+        const disposition = (res.headers['content-disposition'] as string) || '';
+        const match = disposition.match(/filename="?([^";]+)"?/i);
+        const suggestedName = match?.[1] || 'stock-in-document.txt';
+
+        const url = URL.createObjectURL(res.data as Blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = suggestedName;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+
+        toast.success('Dokumen berhasil diunduh', { id: 'download-stock-in' });
+      })
+      .catch(() => {
+        toast.error('Gagal mengunduh dokumen', { id: 'download-stock-in' });
+      });
+  }, []);
+
   const createStockIn = useCallback((payload: FormData) => {
     setLoading(true);
 
@@ -76,5 +106,5 @@ export const useActionsStockIn = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  return { isLoading, createStockIn, updateStockIn, deleteStockIn };
+  return { isLoading, createStockIn, updateStockIn, deleteStockIn, downloadDocument };
 };

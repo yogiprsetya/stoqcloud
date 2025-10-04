@@ -19,6 +19,7 @@ import { formatDate } from '~/utils/date';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { SelectStockTransaction } from './schema';
 import { SearchField } from '~/components/common/search-field';
+import { useActionsStockIn } from './use-actions-stock-in';
 
 const StockInDetail = dynamic(
   () => import('./stock-in-detail').then((mod) => ({ default: mod.StockInDetail })),
@@ -34,6 +35,7 @@ export const StockInHistory = () => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
 
   const { transactions, meta, setPage, setKeyword, keyword, isLoading } = useFetchStockIn();
+  const { downloadDocument } = useActionsStockIn();
 
   const handleViewDetails = (id: string) => {
     setDetailId(id);
@@ -43,11 +45,6 @@ export const StockInHistory = () => {
   const handleCloseDetail = () => {
     setIsDetailOpen(false);
     setDetailId(null);
-  };
-
-  const handleDownloadDocument = (id: string) => {
-    // TODO: Implement download document functionality
-    console.log('Download document for:', id);
   };
 
   const handlePageChange = (page: number) => {
@@ -125,7 +122,7 @@ export const StockInHistory = () => {
               Lihat Detail
             </DropdownMenuItem>
 
-            <DropdownMenuItem onClick={() => handleDownloadDocument(row.original.id)}>
+            <DropdownMenuItem onClick={() => downloadDocument(row.original.id)}>
               <Download />
               Download Dokumen
             </DropdownMenuItem>
