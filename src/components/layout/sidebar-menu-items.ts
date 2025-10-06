@@ -1,4 +1,4 @@
-import { Package, Download, Upload, Home, Settings, type LucideIcon } from 'lucide-react';
+import { Download, Upload, Home, Settings, Users, type LucideIcon } from 'lucide-react';
 
 export interface MenuItem {
   title: string;
@@ -41,9 +41,14 @@ export const menuItems: MenuItem[] = [
     href: '/manage/stock-out',
     icon: Upload
   },
+  // {
+  //   title: 'Check Stock',
+  //   href: '/manage/stock',
+  //   icon: Package
+  // },
   {
-    title: 'Check Stock',
-    href: '/manage/stock',
-    icon: Package
+    title: 'User Management',
+    href: '/manage/users',
+    icon: Users
   }
 ];

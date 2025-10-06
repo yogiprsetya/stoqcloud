@@ -21,9 +21,9 @@ export async function GET(req: NextRequest) {
 
   let sortedBy = desc(category.createdAt);
 
-  const searchCodition = params.keyword ? ilike(category.name, `%${params.keyword}%`) : undefined;
+  const searchCondition = params.keyword ? ilike(category.name, `%${params.keyword}%`) : undefined;
   const offset = params.page ? (Number(params.page) - 1) * LIMIT_DB_ROW : 0;
-  const queryFilter = and(searchCodition);
+  const queryFilter = and(searchCondition);
   const sort = params.sort || 'asc';
 
   if (sort === 'asc') {
@@ -36,7 +36,13 @@ export async function GET(req: NextRequest) {
 
   return requireUserAuth(req, async (session) => {
     if (session) {
-      const categories = await db.select().from(category).orderBy(sortedBy).offset(offset);
+      const categories = await db
+        .select()
+        .from(category)
+        .orderBy(sortedBy)
+        .offset(offset)
+        .where(queryFilter)
+        .limit(LIMIT_DB_ROW);
 
       const meta = await createMeta({
         table: category,

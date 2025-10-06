@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { LogOut, ChevronDown, ChevronRight } from 'lucide-react';
 import { Logo } from '../common/logo';
 import { menuItems, MenuItem } from './sidebar-menu-items';
-import { signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import {
   Sidebar,
   SidebarContent,
@@ -24,6 +24,7 @@ import {
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
   const [expandedMenus, setExpandedMenus] = useState<string[]>([]);
 
   const handleLogout = () => {
@@ -50,6 +51,19 @@ export function AppSidebar() {
     return false;
   };
 
+  // Filter menu items based on user role
+  const getFilteredMenuItems = () => {
+    if (!session?.user) return [];
+
+    return menuItems.filter((item) => {
+      // User Management hanya untuk MANAGER
+      if (item.href === '/manage/users') {
+        return session.user.role === 'MANAGER';
+      }
+      return true;
+    });
+  };
+
   // Auto-expand menu if current path matches any child
   useEffect(() => {
     const activeMenu = menuItems.find(
@@ -71,7 +85,7 @@ export function AppSidebar() {
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
-              {menuItems.map((item) => {
+              {getFilteredMenuItems().map((item) => {
                 const Icon = item.icon;
                 const hasChildren = item.children && item.children.length > 0;
                 const isActive = isActivePath(item);

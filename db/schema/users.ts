@@ -2,7 +2,7 @@ import { text, timestamp, pgTable, integer, primaryKey, pgEnum } from 'drizzle-o
 import { relations } from 'drizzle-orm';
 import type { AdapterAccountType } from '@auth/core/adapters';
 
-export const roleEnum = pgEnum('role', ['MANAGER', 'OPERATOR']);
+export const roleEnum = pgEnum('role', ['MANAGER', 'OPERATOR', 'CASHIER']);
 
 export const users = pgTable('user', {
   id: text('id')

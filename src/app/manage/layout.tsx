@@ -14,7 +14,7 @@ import { Skeleton } from '~/components/ui/skeleton';
 
 const Header = dynamic(() => import('./header').then((m) => m.SpaceHeader), {
   ssr: false,
-  loading: () => <Skeleton className="w-full h-16 max-md:hidden" />
+  loading: () => <Skeleton className="w-full h-16 md:mb-6 max-md:hidden" />
 });
 
 const Toaster = dynamic(() => import('~/components/ui/sonner').then((m) => m.Toaster), {

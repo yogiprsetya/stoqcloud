@@ -21,9 +21,9 @@ export async function GET(req: NextRequest) {
 
   let sortedBy = desc(supplier.createdAt);
 
-  const searchCodition = params.keyword ? ilike(supplier.name, `%${params.keyword}%`) : undefined;
+  const searchCondition = params.keyword ? ilike(supplier.name, `%${params.keyword}%`) : undefined;
   const offset = params.page ? (Number(params.page) - 1) * LIMIT_DB_ROW : 0;
-  const queryFilter = and(searchCodition);
+  const queryFilter = and(searchCondition);
   const sort = params.sort || 'asc';
 
   if (sort === 'asc') {
@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
 
   return requireUserAuth(req, async (session) => {
     if (session) {
-      const categories = await db.select().from(supplier).orderBy(sortedBy).offset(offset);
+      const suppliers = await db.select().from(supplier).orderBy(sortedBy).offset(offset);
 
       const meta = await createMeta({
         table: supplier,
@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
         query: queryFilter
       });
 
-      return handleSuccessResponse(categories, meta);
+      return handleSuccessResponse(suppliers, meta);
     }
 
     return handleExpiredSession();

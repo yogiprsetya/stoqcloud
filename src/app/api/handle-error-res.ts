@@ -39,6 +39,16 @@ export const handleExpiredSession = () => {
   );
 };
 
+export const handleForbidden = (message = 'Forbidden') => {
+  return NextResponse.json(
+    {
+      success: false,
+      message
+    },
+    { status: 403 }
+  );
+};
+
 export const handleNotFound = () => {
   return NextResponse.json(
     {
