@@ -3,14 +3,15 @@ info:
   title: StoqCloud API
   version: 0.1.0
   description: |
-    Dokumentasi API untuk StoqCloud.
-    Semua endpoint berada di Next.js Route Handlers di bawah path `/api`.
+    API documentation for StoqCloud inventory management system.
+    All endpoints are Next.js Route Handlers under the `/api` path.
 servers:
   - url: http://localhost:3000
     description: Local
   - url: https://your-production-domain
     description: Production
 tags:
+  - name: Auth
   - name: Category
   - name: Supplier
   - name: SKU
@@ -167,10 +168,27 @@ components:
             id: { type: string }
             name: { type: string }
 paths:
+  /api/auth/[...nextauth]:
+    get:
+      tags: [Auth]
+      summary: NextAuth.js authentication endpoint (GET)
+      description: Handles authentication callbacks and session management via NextAuth.js
+      responses:
+        '200': { description: Authentication response }
+        '302': { description: Redirect response }
+    post:
+      tags: [Auth]
+      summary: NextAuth.js authentication endpoint (POST)
+      description: Handles authentication requests and session management via NextAuth.js
+      responses:
+        '200': { description: Authentication response }
+        '302': { description: Redirect response }
+
   /api/category:
     get:
       tags: [Category]
       summary: List categories
+      description: Retrieve a paginated list of product categories with optional search and sorting
       security: [{ sessionAuth: [] }]
       parameters:
         - in: query
@@ -203,6 +221,7 @@ paths:
     post:
       tags: [Category]
       summary: Create category
+      description: Create a new product category
       security: [{ sessionAuth: [] }]
       requestBody:
         required: true
@@ -337,11 +356,45 @@ paths:
       responses:
         '200': { description: OK }
         '401': { description: Unauthorized }
+    patch:
+      tags: [Supplier]
+      summary: Update supplier
+      security: [{ sessionAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+      responses:
+        '200': { description: OK }
+        '400': { description: Bad Request }
+        '401': { description: Unauthorized }
+    delete:
+      tags: [Supplier]
+      summary: Delete supplier
+      security: [{ sessionAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+        '401': { description: Unauthorized }
 
   /api/sku:
     get:
       tags: [SKU]
       summary: List SKUs
+      description: Retrieve a paginated list of SKUs (Stock Keeping Units) with category and supplier information
       security: [{ sessionAuth: [] }]
       parameters:
         - in: query
@@ -441,6 +494,7 @@ paths:
     get:
       tags: [Users]
       summary: List users (MANAGER only)
+      description: Retrieve a paginated list of users. Only users with MANAGER role can access this endpoint
       security: [{ sessionAuth: [] }]
       parameters:
         - in: query
@@ -532,6 +586,7 @@ paths:
     get:
       tags: [Stock In]
       summary: List stock-in transactions
+      description: Retrieve a paginated list of stock-in transactions with SKU, category, and supplier details
       security: [{ sessionAuth: [] }]
       parameters:
         - in: query
@@ -552,6 +607,7 @@ paths:
     post:
       tags: [Stock In]
       summary: Create stock-in transaction
+      description: Create a new stock-in transaction and automatically update SKU stock quantity
       security: [{ sessionAuth: [] }]
       requestBody:
         required: true
@@ -621,6 +677,7 @@ paths:
     get:
       tags: [Stock Out]
       summary: List stock-out transactions
+      description: Retrieve a paginated list of stock-out transactions with SKU, category, and supplier details
       security: [{ sessionAuth: [] }]
       parameters:
         - in: query
@@ -641,6 +698,7 @@ paths:
     post:
       tags: [Stock Out]
       summary: Create stock-out transaction
+      description: Create a new stock-out transaction and automatically update SKU stock quantity (validates sufficient stock)
       security: [{ sessionAuth: [] }]
       requestBody:
         required: true
@@ -705,5 +763,87 @@ paths:
       responses:
         '200': { description: OK }
         '401': { description: Unauthorized }
+
+  /api/stock-in/{id}/document:
+    get:
+      tags: [Stock In]
+      summary: Download stock-in document as text file
+      description: Downloads a formatted text document containing stock-in transaction details
+      security: [{ sessionAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Text document file
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: |
+                  STOCK IN DOCUMENT
+                  ===================
+                  Document: DOC-001
+                  SKU: SKU001 - Product Name
+                  Category: Electronics
+                  Supplier: Supplier Name
+                  Quantity: +10
+                  Unit Price: 100.00
+                  Total Price: 1000.00
+                  Created At: 2024-01-01T00:00:00.000Z
+                  Created By: John Doe
+
+                  Notes: Initial stock
+          headers:
+            Content-Disposition:
+              description: Attachment filename
+              schema:
+                type: string
+                example: 'attachment; filename="stock-in-DOC-001.txt"'
+        '401': { description: Unauthorized }
+        '404': { description: Not Found }
+
+  /api/stock-out/{id}/document:
+    get:
+      tags: [Stock Out]
+      summary: Download stock-out document as text file
+      description: Downloads a formatted text document containing stock-out transaction details
+      security: [{ sessionAuth: [] }]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Text document file
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: |
+                  STOCK OUT DOCUMENT
+                  ===================
+                  Document: DOC-002
+                  SKU: SKU001 - Product Name
+                  Category: Electronics
+                  Supplier: Supplier Name
+                  Quantity: -5
+                  Unit Price: 100.00
+                  Total Price: 500.00
+                  Created At: 2024-01-01T00:00:00.000Z
+                  Created By: John Doe
+
+                  Notes: Sale transaction
+          headers:
+            Content-Disposition:
+              description: Attachment filename
+              schema:
+                type: string
+                example: 'attachment; filename="stock-out-DOC-002.txt"'
+        '401': { description: Unauthorized }
+        '404': { description: Not Found }
 
 security: [{ sessionAuth: [] }]
