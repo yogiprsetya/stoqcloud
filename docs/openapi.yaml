@@ -144,8 +144,11 @@ components:
           type: string
           nullable: true
         createdBy:
-          type: string
+          type: object
           nullable: true
+          properties:
+            id: { type: string }
+            name: { type: string }
         createdAt:
           type: string
           format: date-time
@@ -889,8 +892,28 @@ paths:
         - in: query
           name: endDate
           schema: { type: string, format: date-time }
+        - in: query
+          name: categoryId
+          schema: { type: string }
+        - in: query
+          name: supplierId
+          schema: { type: string }
+        - in: query
+          name: userId
+          schema: { type: string }
       responses:
-        '200': { description: OK }
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: '#/components/schemas/StockTransaction' }
 
   /api/alerts/low-stock:
     get:
