@@ -955,50 +955,6 @@ paths:
                             stock: { type: integer }
                       meta: { $ref: '#/components/schemas/Meta' }
 
-  /api/alerts/low-stock/test:
-    post:
-      tags: [Alerts]
-      summary: Trigger test low stock scan (MANAGER only)
-      description: Executes a low-stock scan and returns items under threshold for testing
-      security: [{ sessionAuth: [] }]
-      parameters:
-        - in: query
-          name: keyword
-          schema: { type: string }
-        - in: query
-          name: page
-          schema: { type: integer, minimum: 1 }
-        - in: query
-          name: sort
-          schema: { type: string, enum: [asc, desc] }
-        - in: query
-          name: threshold
-          schema: { type: integer, minimum: 0 }
-      responses:
-        '200':
-          description: OK
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - $ref: '#/components/schemas/SuccessResponse'
-                  - type: object
-                    properties:
-                      data:
-                        type: object
-                        properties:
-                          message: { type: string }
-                          items:
-                            type: array
-                            items:
-                              type: object
-                              properties:
-                                id: { type: string }
-                                skuCode: { type: string }
-                                name: { type: string }
-                                stock: { type: integer }
-                      meta: { $ref: '#/components/schemas/Meta' }
-
   /api/stock-out/{id}/document:
     get:
       tags: [Stock Out]
