@@ -2,6 +2,7 @@ import { useState } from 'react';
 import useSWR from 'swr';
 import { HttpResponse } from '~/types/Response';
 import { LowStockRow } from '../schema';
+import { useDebounce } from '~/hooks/use-debounce';
 
 export function useStockLow() {
   const [keyword, setKeyword] = useState('');
@@ -9,8 +10,10 @@ export function useStockLow() {
   const [sort, setSort] = useState<'asc' | 'desc'>('asc');
   const [threshold, setThreshold] = useState(10);
 
+  const debouncedKeyword = useDebounce(keyword, 500);
+
   const query = new URLSearchParams();
-  if (keyword) query.set('keyword', keyword);
+  if (debouncedKeyword) query.set('keyword', debouncedKeyword);
   if (page) query.set('page', String(page));
   if (sort) query.set('sort', sort);
   if (threshold !== undefined) query.set('threshold', String(threshold));

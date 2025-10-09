@@ -2,6 +2,7 @@ import useSWR from 'swr';
 import { HttpResponse } from '~/types/Response';
 import { SelectReportStock } from './schema';
 import { useState } from 'react';
+import { useDebounce } from '~/hooks/use-debounce';
 
 export const useReportStock = () => {
   const [keyword, setKeyword] = useState('');
@@ -9,9 +10,11 @@ export const useReportStock = () => {
   const [sort, setSort] = useState<'asc' | 'desc'>('asc');
   const [sortBy, setSortBy] = useState<'name' | 'createdAt' | 'stock'>('name');
 
+  const debouncedKeyword = useDebounce(keyword, 500);
+
   const query = new URLSearchParams();
 
-  if (keyword) query.set('keyword', keyword);
+  if (debouncedKeyword) query.set('keyword', debouncedKeyword);
   if (page) query.set('page', String(page));
   if (sort) query.set('sort', sort);
   if (sortBy) query.set('sortBy', sortBy);

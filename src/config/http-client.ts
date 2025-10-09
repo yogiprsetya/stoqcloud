@@ -19,6 +19,11 @@ httpClient.interceptors.response.use(
   }
 );
 
-const fetcher = (url: string) => httpClient.get(url).then((res) => res.data);
+// SWR v2 meneruskan AbortSignal lewat argumen kedua pada fetcher (key, { signal })
+// Kita terima bentuk apapun dari key (string | array) dan ekstrak URL string pertama.
+const fetcher = (key: string | readonly unknown[], opts?: { signal?: AbortSignal }) => {
+  const url = typeof key === 'string' ? key : String(key[0]);
+  return httpClient.get(url, { signal: opts?.signal }).then((res) => res.data);
+};
 
 export { httpClient, fetcher };
