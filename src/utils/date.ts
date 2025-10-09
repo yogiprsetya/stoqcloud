@@ -1,5 +1,5 @@
 export const formatDate = (dateString: string | Date) => {
-  return new Date(dateString).toLocaleDateString('id-ID', {
+  return new Date(dateString).toLocaleDateString('en-EN', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric'
@@ -7,7 +7,7 @@ export const formatDate = (dateString: string | Date) => {
 };
 
 export const formatDetailDate = (dateString: string | Date) => {
-  return new Date(dateString).toLocaleDateString('id-ID', {
+  return new Date(dateString).toLocaleDateString('en-EN', {
     day: '2-digit',
     month: 'long',
     year: 'numeric',

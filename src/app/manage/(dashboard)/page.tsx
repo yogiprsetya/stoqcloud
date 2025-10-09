@@ -39,7 +39,7 @@ const AnalyticsDashboard: FC = () => {
         <Card>
           <CardContent>
             <div className="text-sm text-muted-foreground">Inventory Value</div>
-            <div className="mt-2 text-2xl font-bold">Rp. {formatNumberWithSuffix(data.inventoryValue)}</div>
+            <div className="mt-2 text-2xl font-bold">{formatNumberWithSuffix(data.inventoryValue)}</div>
           </CardContent>
         </Card>
 

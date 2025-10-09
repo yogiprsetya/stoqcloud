@@ -22,7 +22,10 @@ export async function GET(req: NextRequest) {
     sortBy: searchParams.get('sortBy'), // createdAt | updatedAt | quantity
     type: searchParams.get('type'), // IN | OUT
     startDate: searchParams.get('startDate'), // ISO
-    endDate: searchParams.get('endDate') // ISO
+    endDate: searchParams.get('endDate'), // ISO
+    categoryId: searchParams.get('categoryId'), // category ID
+    supplierId: searchParams.get('supplierId'), // supplier ID
+    userId: searchParams.get('userId') // user ID
   };
 
   const offset = params.page ? (Number(params.page) - 1) * LIMIT_DB_ROW : 0;
@@ -47,7 +50,10 @@ export async function GET(req: NextRequest) {
     params.keyword ? ilike(sku.name, `%${params.keyword}%`) : undefined,
     params.type ? eq(stockTransaction.type, params.type as 'IN' | 'OUT') : undefined,
     params.startDate ? sql`${stockTransaction.createdAt} >= ${new Date(params.startDate)}` : undefined,
-    params.endDate ? sql`${stockTransaction.createdAt} <= ${new Date(params.endDate)}` : undefined
+    params.endDate ? sql`${stockTransaction.createdAt} <= ${new Date(params.endDate)}` : undefined,
+    params.categoryId ? eq(sku.categoryId, params.categoryId) : undefined,
+    params.supplierId ? eq(sku.supplierId, params.supplierId) : undefined,
+    params.userId ? eq(stockTransaction.createdBy, params.userId) : undefined
   ].filter(Boolean);
 
   const queryFilter = conditions.length ? and(...conditions) : undefined;

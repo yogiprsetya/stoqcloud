@@ -1,4 +1,4 @@
-import { Download, Upload, Home, Settings, Users, type LucideIcon } from 'lucide-react';
+import { Download, Upload, Home, Settings, Users, BarChart3, type LucideIcon } from 'lucide-react';
 
 export interface MenuItem {
   title: string;
@@ -35,6 +35,14 @@ export const menuItems: MenuItem[] = [
     title: 'Stock In',
     href: '/manage/stock-in',
     icon: Download
+  },
+  {
+    title: 'Reports',
+    icon: BarChart3,
+    children: [
+      { title: 'Stock', href: '/manage/reports/stock' },
+      { title: 'Transactions', href: '/manage/reports/transactions' }
+    ]
   },
   {
     title: 'Stock Out',
