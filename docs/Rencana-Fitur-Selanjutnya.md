@@ -77,6 +77,12 @@ Dokumen ini merangkum rencana pengembangan fitur StoqCloud berdasarkan analisis 
   - `POST /api/bulk/stock-adjustment` — penyesuaian stok massal (MANAGER only).
 - Catatan: validasi baris, partial failure report, idempotency key.
 
+##### UI Implemented (Client)
+
+- Halaman `manage/sku` memiliki tombol `Import` yang membuka dialog unggah CSV.
+- Komponen `SkuImportDialog` melakukan upload multipart ke `POST /bulk/sku-import` dan menampilkan pesan hasil.
+- Tersedia tombol `Unduh Template` (placeholder) mengarah ke `/templates/sku-import-template.csv`.
+
 #### 5) Advanced Search & Filtering
 
 - Endpoint:

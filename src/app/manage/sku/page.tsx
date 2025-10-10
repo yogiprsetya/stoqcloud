@@ -16,11 +16,16 @@ const SkuDeleteDialog = dynamic(() => import('./sku-delete-dialog').then((m) => 
   ssr: false
 });
 
+const SkuImportDialog = dynamic(() => import('./sku-import-dialog').then((m) => m.SkuImportDialog), {
+  ssr: false
+});
+
 export default function DepotSkuPage() {
   const [editing, setEditing] = useState<SelectSKU | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState<SelectSKU | null>(null);
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   const handleOpenModal = () => {
     setEditing(null);
@@ -49,7 +54,12 @@ export default function DepotSkuPage() {
         <p className="text-muted-foreground">Manage data master SKUs</p>
       </div>
 
-      <SkuTable onEdit={handleEdit} onDelete={handleDelete} handleOpenModal={handleOpenModal} />
+      <SkuTable
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        handleOpenModal={handleOpenModal}
+        onOpenImport={() => setIsImportOpen(true)}
+      />
 
       <SkuCreateDialog isOpen={isModalOpen} onClose={handleCloseModal} editing={editing} />
 
@@ -61,6 +71,8 @@ export default function DepotSkuPage() {
         }}
         sku={deleting}
       />
+
+      <SkuImportDialog isOpen={isImportOpen} onClose={() => setIsImportOpen(false)} />
     </div>
   );
 }

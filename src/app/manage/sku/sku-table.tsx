@@ -14,6 +14,7 @@ interface SkuTableProps {
   onEdit: (item: SelectSKU) => void;
   onDelete: (item: SelectSKU) => void;
   handleOpenModal: () => void;
+  onOpenImport?: () => void;
 }
 
 const createColumns = (
@@ -92,7 +93,7 @@ const createColumns = (
   }
 ];
 
-export const SkuTable = ({ onEdit, onDelete, handleOpenModal }: SkuTableProps) => {
+export const SkuTable = ({ onEdit, onDelete, handleOpenModal, onOpenImport }: SkuTableProps) => {
   const { skus, meta, isLoading, setPage, setKeyword, keyword } = useFetchSku();
 
   const columns = createColumns(onEdit, onDelete);
@@ -102,6 +103,9 @@ export const SkuTable = ({ onEdit, onDelete, handleOpenModal }: SkuTableProps) =
       <div className="flex items-center justify-end">
         <div className="flex gap-2">
           <SearchField value={keyword} onChange={setKeyword} placeholder="Search ..." />
+          <Button variant="secondary" onClick={onOpenImport}>
+            Import
+          </Button>
           <Button onClick={handleOpenModal}>Add SKU</Button>
         </div>
       </div>

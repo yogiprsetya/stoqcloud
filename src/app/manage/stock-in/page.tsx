@@ -4,14 +4,16 @@ import { useState } from 'react';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Badge } from '~/components/ui/badge';
-import { Download, BookPlus } from 'lucide-react';
+import { Download, BookPlus, Upload } from 'lucide-react';
 import { StockInForm } from './stock-in-form';
 import { StockInHistory } from './stock-in-history';
+import { StockInImportDialog } from './stock-in-import-dialog';
 import { useStatStockIn } from '~/app/manage/stock-in/use-stat-stock-in';
 import { formatRp } from '~/utils/rupiah';
 
 export default function StockInPage() {
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   // Hook untuk statistik
   const { stats, loading: statsLoading, mutate: refetchStats } = useStatStockIn();
@@ -32,6 +34,10 @@ export default function StockInPage() {
         </div>
 
         <div className="flex gap-2">
+          <Button variant="secondary" onClick={() => setIsImportOpen(true)}>
+            <Upload />
+            Import
+          </Button>
           <Button variant="outline">
             <Download />
             Export
@@ -96,6 +102,7 @@ export default function StockInPage() {
       <StockInHistory />
 
       <StockInForm isOpen={isFormOpen} onClose={() => setIsFormOpen(false)} onSuccess={handleRefresh} />
+      <StockInImportDialog isOpen={isImportOpen} onClose={() => setIsImportOpen(false)} />
     </div>
   );
 }
