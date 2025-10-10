@@ -21,6 +21,7 @@ tags:
   - name: Analytics
   - name: Reports
   - name: Alerts
+  - name: Bulk Operations
 components:
   securitySchemes:
     sessionAuth:
@@ -173,6 +174,48 @@ components:
           properties:
             id: { type: string }
             name: { type: string }
+    BulkImportResult:
+      type: object
+      properties:
+        totalRows:
+          type: integer
+          example: 100
+        successCount:
+          type: integer
+          example: 95
+        errorCount:
+          type: integer
+          example: 5
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              row:
+                type: integer
+                example: 3
+              message:
+                type: string
+                example: 'SKU code already exists'
+              data:
+                type: object
+                description: 'The problematic row data'
+        message:
+          type: string
+          example: 'Import completed: 95/100 rows processed successfully'
+    BulkStockAdjustment:
+      type: object
+      properties:
+        skuId:
+          type: string
+        adjustment:
+          type: integer
+          description: 'Positive for increase, negative for decrease'
+        reason:
+          type: string
+        notes:
+          type: string
+          nullable: true
 paths:
   /api/auth/[...nextauth]:
     get:
@@ -1043,5 +1086,141 @@ paths:
                           totalOutboundThisMonth:
                             type: integer
                             example: 340
+
+  /api/bulk/sku-import:
+    post:
+      tags: [Bulk Operations]
+      summary: Bulk import SKUs from CSV
+      description: Import multiple SKUs from CSV file. Supports creating new SKUs and updating existing ones based on SKU code.
+      security: [{ sessionAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: CSV file containing SKU data
+              required: [file]
+      responses:
+        '200':
+          description: Import completed
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/BulkImportResult'
+        '400':
+          description: Bad Request - Invalid file format or data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+        '413':
+          description: File too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/bulk/stock-in:
+    post:
+      tags: [Bulk Operations]
+      summary: Bulk import stock-in transactions from CSV
+      description: Import multiple stock-in transactions from CSV file. Automatically updates SKU stock quantities.
+      security: [{ sessionAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: CSV file containing stock-in transaction data
+              required: [file]
+      responses:
+        '200':
+          description: Import completed
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/BulkImportResult'
+        '400':
+          description: Bad Request - Invalid file format or data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+        '413':
+          description: File too large
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/bulk/stock-adjustment:
+    post:
+      tags: [Bulk Operations]
+      summary: Bulk stock adjustment (MANAGER only)
+      description: Perform bulk stock adjustments for multiple SKUs. Only users with MANAGER role can access this endpoint.
+      security: [{ sessionAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                adjustments:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/BulkStockAdjustment'
+                  minItems: 1
+                  maxItems: 1000
+                reason:
+                  type: string
+                  description: 'General reason for all adjustments'
+              required: [adjustments]
+      responses:
+        '200':
+          description: Adjustments completed
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/BulkImportResult'
+        '400':
+          description: Bad Request - Invalid adjustment data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - MANAGER role required
 
 security: [{ sessionAuth: [] }]
